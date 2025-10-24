@@ -1,1 +1,0 @@
-'use client';\n\nimport React from 'react';\n\nconst Home = () => {\n  return (\n    <div className='flex flex-col items-center justify-center h-screen'>\n      <h1 className='text-4xl font-bold'>Welcome to SolSafe</h1>\n      <p className='mt-4'>Your decentralized solution for juror staking and case management.</p>\n    </div>\n  );\n};\n\nexport default Home;
