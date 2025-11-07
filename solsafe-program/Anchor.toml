@@ -1,0 +1,5 @@
+[programs.localnet]
+solsafe_program = "ReplaceWithProgramIDIfDeployed"
+
+[workspace]
+members = ["programs/*", "tests/*"]
