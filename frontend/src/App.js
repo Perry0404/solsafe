@@ -143,9 +143,7 @@ export default function App() {
               <footer>
                 <p>© 2025 SOLSAFE. All rights reserved.</p>
                 <p>
-                  <a href="https://x.com/Solsafe_io">X</a> | {
-                  <a href="https://t.me/">Telegram</a> | {
-                  <a href="#whitepaper">Whitepaper</a>
+                  <a href="https://x.com/Solsafe_io">X</a> | <a href="https://t.me/">Telegram</a> | <a href="#whitepaper">Whitepaper</a>
                 </p>
               </footer>
             </div>
