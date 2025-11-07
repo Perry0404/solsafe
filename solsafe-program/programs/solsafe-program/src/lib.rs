@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, TokenAccount, Token};
 use spl_token::instruction::AuthorityType;
 
-declare_id!("solsafe11111111111111111111111111111111111"); // declared as 'solsafe' placeholder
+declare_id!("SoLSaFe111111111111111111111111111111111111"); // declared as 'solsafe' placeholder
 
 mod state;
 use state::{GlobalConfig, CaseAccount, CaseStatus, VoteRecord};
@@ -42,7 +42,7 @@ pub mod solsafe_program {
 
     pub fn update_validators(ctx: Context<UpdateValidators>, validators: Vec<Pubkey>) -> Result<()> {
         let config = &mut ctx.accounts.config;
-        require!(ctx.accounts.admin.key == config.admin, ErrorCode::Unauthorized);
+        require!(*ctx.accounts.admin.key == config.admin, ErrorCode::Unauthorized);
         config.validator_list = validators;
         Ok(())
     }
@@ -200,6 +200,7 @@ pub struct Vote<'info> {
     pub case_account: Account<'info, CaseAccount>,
 
     /// The validator (juror) signing the vote
+    #[account(mut)]
     pub validator: Signer<'info>,
 
     /// One VoteRecord per (case, validator) prevents double voting:
