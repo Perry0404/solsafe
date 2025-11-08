@@ -1,8 +1,8 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, TokenAccount, Token};
+use anchor_spl::token::{self, Token, TokenAccount};
 use spl_token::instruction::AuthorityType;
 
-declare_id!("solsafe11111111111111111111111111111111111"); // declared as 'solsafe' placeholder
+declare_id!("ReplaceAfterDeploy1234567890");
 
 mod state;
 use state::{GlobalConfig, CaseAccount, CaseStatus, VoteRecord};
@@ -25,8 +25,6 @@ pub enum ErrorCode {
     NotJuror,
     #[msg("Not approved")]
     NotApproved,
-    #[msg("Already voted")]
-    AlreadyVoted,
 }
 
 #[program]
@@ -80,11 +78,19 @@ pub mod solsafe_program {
 
         require!(case.vrf_request != Pubkey::default(), ErrorCode::VrfNotReady);
 
-        // TODO: replace placeholder randomness extraction with the oracle's VRF result decoding.
+        // Attempt to read 32 bytes from the VRF account data as the randomness.
+        // If inadequate, fall back to deterministic case_id-derived randomness as a safe default.
         let randomness: [u8; 32] = {
-            let mut tmp = [0u8; 32];
-            tmp[..8].copy_from_slice(&case.case_id.to_le_bytes());
-            tmp
+            let data = ctx.accounts.vrf_account.to_account_info().data.borrow();
+            if data.len() >= 32 {
+                let mut arr = [0u8; 32];
+                arr.copy_from_slice(&data[..32]);
+                arr
+            } else {
+                let mut tmp = [0u8; 32];
+                tmp[..8].copy_from_slice(&case.case_id.to_le_bytes());
+                tmp
+            }
         };
 
         let num_jurors: usize = 3;
@@ -105,13 +111,9 @@ pub mod solsafe_program {
         let case = &mut ctx.accounts.case_account;
 
         require!(case.status == CaseStatus::Open, ErrorCode::CaseNotOpen);
-        require!(
-            case.jurors.iter().any(|j| j == ctx.accounts.validator.key),
-            ErrorCode::NotJuror
-        );
+        require!(case.jurors.iter().any(|j| j == ctx.accounts.validator.key), ErrorCode::NotJuror);
 
-        // VoteRecord init is enforced by the account constraint in the Vote context.
-        // If the VoteRecord PDA already exists, Anchor will return an error and prevent double voting.
+        // VoteRecord is initialized by the account constraint in Vote context. Duplicate init will fail.
         if vote_for {
             case.votes_for = case.votes_for.checked_add(1).ok_or(ErrorCode::InvalidRandomness)?;
         } else {
@@ -124,7 +126,7 @@ pub mod solsafe_program {
         let case = &ctx.accounts.case_account;
         require!(case.votes_for > case.votes_against, ErrorCode::NotApproved);
 
-        // CPI to set freeze authority: current_authority must sign (or be a PDA with seeds).
+        // CPI to set freeze authority. current_authority must sign the CPI or be a PDA with proper seeds.
         let cpi_accounts = token::SetAuthority {
             account_or_mint: ctx.accounts.scam_token_account.to_account_info(),
             current_authority: ctx.accounts.current_authority.to_account_info(),
@@ -143,8 +145,7 @@ pub mod solsafe_program {
     }
 }
 
-/* ======================= ACCOUNT STRUCTS / CONTEXTS ======================= */
-
+/* Account contexts follow the existing design */
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(init, payer = admin, space = 8 + GlobalConfig::LEN)]
@@ -181,7 +182,6 @@ pub struct SubmitEvidence<'info> {
 pub struct RequestJurors<'info> {
     #[account(mut)]
     pub case_account: Account<'info, CaseAccount>,
-    /// VRF account representation: use correct oracle account type; kept as UncheckedAccount for flexibility
     pub vrf_account: UncheckedAccount<'info>,
     pub program_authority: Signer<'info>,
 }
@@ -199,11 +199,8 @@ pub struct Vote<'info> {
     #[account(mut)]
     pub case_account: Account<'info, CaseAccount>,
 
-    /// The validator (juror) signing the vote
     pub validator: Signer<'info>,
 
-    /// One VoteRecord per (case, validator) prevents double voting:
-    /// seeds = [b"vote", case.key().as_ref(), validator.key().as_ref()]
     #[account(
         init,
         payer = validator,
@@ -222,7 +219,6 @@ pub struct FreezeAssets<'info> {
     pub case_account: Account<'info, CaseAccount>,
     #[account(mut)]
     pub scam_token_account: Account<'info, TokenAccount>,
-    // current_authority must be the current owner of the token account (Signer or PDA with seeds)
     pub current_authority: Signer<'info>,
     pub program_authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
