@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount};
 use spl_token::instruction::AuthorityType;
 
-declare_id!("ReplaceAfterDeploy1234567890");
+declare_id!("11111111111111111111111111111111");
 
 mod state;
 use state::{GlobalConfig, CaseAccount, CaseStatus, VoteRecord};
@@ -40,7 +40,7 @@ pub mod solsafe_program {
 
     pub fn update_validators(ctx: Context<UpdateValidators>, validators: Vec<Pubkey>) -> Result<()> {
         let config = &mut ctx.accounts.config;
-        require!(ctx.accounts.admin.key == config.admin, ErrorCode::Unauthorized);
+        require!(*ctx.accounts.admin.key == config.admin, ErrorCode::Unauthorized);
         config.validator_list = validators;
         Ok(())
     }
@@ -81,7 +81,8 @@ pub mod solsafe_program {
         // Attempt to read 32 bytes from the VRF account data as the randomness.
         // If inadequate, fall back to deterministic case_id-derived randomness as a safe default.
         let randomness: [u8; 32] = {
-            let data = ctx.accounts.vrf_account.to_account_info().data.borrow();
+            let account_info = ctx.accounts.vrf_account.to_account_info();
+            let data = account_info.data.borrow();
             if data.len() >= 32 {
                 let mut arr = [0u8; 32];
                 arr.copy_from_slice(&data[..32]);
@@ -199,6 +200,7 @@ pub struct Vote<'info> {
     #[account(mut)]
     pub case_account: Account<'info, CaseAccount>,
 
+    #[account(mut)]
     pub validator: Signer<'info>,
 
     #[account(
