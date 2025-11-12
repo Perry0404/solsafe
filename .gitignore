@@ -2,3 +2,14 @@ node_modules/
 .env
 dist/
 build/
+
+# Anchor/Rust artifacts
+target/
+.anchor/
+test-ledger/
+*.so
+*.swp
+*.swo
+*~
+.DS_Store
+Cargo.lock
