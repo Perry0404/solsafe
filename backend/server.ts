@@ -20,7 +20,7 @@ async function updateValidators() {
   const provider = new AnchorProvider(connection, wallet, { preflightCommitment: "confirmed" });
   anchor.setProvider(provider);
 
-  const programId = new PublicKey(process.env.PROGRAM_ID || "ReplaceAfterDeploy1234567890");
+  const programId = new PublicKey(process.env.PROGRAM_ID || "Hvo63PGhSivug4ju5bEWrVwLuDukk45DcKBZM2XPUUVr");
   const program = new Program(idl as anchor.Idl, programId, provider);
 
   const validators = await connection.getVoteAccounts();

@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount};
 use spl_token::instruction::AuthorityType;
 
-declare_id!("ReplaceAfterDeploy1234567890");
+declare_id!("Hvo63PGhSivug4ju5bEWrVwLuDukk45DcKBZM2XPUUVr");
 
 mod state;
 use state::{GlobalConfig, CaseAccount, CaseStatus, VoteRecord};
@@ -96,130 +96,5 @@ pub mod solsafe_program {
         let num_jurors: usize = 3;
         let validator_count = config.validator_list.len();
         require!(validator_count >= num_jurors, ErrorCode::NotEnoughValidators);
-
-        let mut jurors: Vec<Pubkey> = Vec::with_capacity(num_jurors);
-        for i in 0..num_jurors {
-            let index = (randomness[i % 32] as usize) % validator_count;
-            jurors.push(config.validator_list[index]);
-        }
-        case.jurors = jurors;
-        Ok(())
     }
-
-    /// Vote: enforces one-vote-per-wallet by initializing a VoteRecord PDA.
-    pub fn vote(ctx: Context<Vote>, vote_for: bool) -> Result<()> {
-        let case = &mut ctx.accounts.case_account;
-
-        require!(case.status == CaseStatus::Open, ErrorCode::CaseNotOpen);
-        require!(case.jurors.iter().any(|j| j == ctx.accounts.validator.key), ErrorCode::NotJuror);
-
-        // VoteRecord is initialized by the account constraint in Vote context. Duplicate init will fail.
-        if vote_for {
-            case.votes_for = case.votes_for.checked_add(1).ok_or(ErrorCode::InvalidRandomness)?;
-        } else {
-            case.votes_against = case.votes_against.checked_add(1).ok_or(ErrorCode::InvalidRandomness)?;
-        }
-        Ok(())
-    }
-
-    pub fn freeze_assets(ctx: Context<FreezeAssets>) -> Result<()> {
-        let case = &ctx.accounts.case_account;
-        require!(case.votes_for > case.votes_against, ErrorCode::NotApproved);
-
-        // CPI to set freeze authority. current_authority must sign the CPI or be a PDA with proper seeds.
-        let cpi_accounts = token::SetAuthority {
-            account_or_mint: ctx.accounts.scam_token_account.to_account_info(),
-            current_authority: ctx.accounts.current_authority.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
-
-        token::set_authority(
-            cpi_ctx,
-            AuthorityType::FreezeAccount,
-            Some(ctx.accounts.program_authority.key()),
-        )?;
-
-        let case_mut = &mut ctx.accounts.case_account;
-        case_mut.status = CaseStatus::Frozen;
-        Ok(())
-    }
-}
-
-/* Account contexts follow the existing design */
-#[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(init, payer = admin, space = 8 + GlobalConfig::LEN)]
-    pub config: Account<'info, GlobalConfig>,
-    #[account(mut)]
-    pub admin: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct UpdateValidators<'info> {
-    #[account(mut, has_one = admin)]
-    pub config: Account<'info, GlobalConfig>,
-    pub admin: Signer<'info>,
-}
-
-#[derive(Accounts)]
-#[instruction(case_id: u64)]
-pub struct SubmitEvidence<'info> {
-    #[account(
-        init,
-        payer = submitter,
-        space = 8 + CaseAccount::LEN,
-        seeds = [b"case", submitter.key().as_ref(), &case_id.to_le_bytes()],
-        bump
-    )]
-    pub case_account: Account<'info, CaseAccount>,
-    #[account(mut)]
-    pub submitter: Signer<'info>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct RequestJurors<'info> {
-    #[account(mut)]
-    pub case_account: Account<'info, CaseAccount>,
-    pub vrf_account: UncheckedAccount<'info>,
-    pub program_authority: Signer<'info>,
-}
-
-#[derive(Accounts)]
-pub struct SelectJurors<'info> {
-    #[account(mut)]
-    pub case_account: Account<'info, CaseAccount>,
-    pub config: Account<'info, GlobalConfig>,
-    pub vrf_account: UncheckedAccount<'info>,
-}
-
-#[derive(Accounts)]
-pub struct Vote<'info> {
-    #[account(mut)]
-    pub case_account: Account<'info, CaseAccount>,
-
-    pub validator: Signer<'info>,
-
-    #[account(
-        init,
-        payer = validator,
-        space = 8 + VoteRecord::LEN,
-        seeds = [b"vote", case_account.key().as_ref(), validator.key().as_ref()],
-        bump
-    )]
-    pub vote_record: Account<'info, VoteRecord>,
-
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct FreezeAssets<'info> {
-    #[account(mut)]
-    pub case_account: Account<'info, CaseAccount>,
-    #[account(mut)]
-    pub scam_token_account: Account<'info, TokenAccount>,
-    pub current_authority: Signer<'info>,
-    pub program_authority: Signer<'info>,
-    pub token_program: Program<'info, Token>,
 }
