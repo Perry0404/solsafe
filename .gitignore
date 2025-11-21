@@ -1,0 +1,86 @@
+# Solana/Anchor
+target/
+.anchor/
+test-ledger/
+.DS_Store
+*.so
+*.swp
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Dependencies
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Keypairs (IMPORTANT: Never commit private keys!)
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!Anchor.toml
+!Cargo.toml
+
+# Solana keypairs
+id.json
+deploy-keypair.json
+*-keypair.json
+
+# Frontend specific
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.cache/
+
+# Backend specific
+backend/dist/
+
+# IDL (you may want to commit this, but can regenerate)
+# target/idl/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Deployment artifacts
+deployment-logs/
+
+# Internal deployment documentation (builders only)
+DEPLOYMENT_TIMELINE.md
