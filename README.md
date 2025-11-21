@@ -54,12 +54,11 @@ solsafe/
 ├── backend/                  # Express API server
 │   ├── api-server.ts        # IPFS upload endpoints
 │   └── server.ts            # Validator update script
-└── docs/
-    ├── ARCHITECTURE.md              # Code structure guide
-    ├── BLOCKCHAIN_INTEGRATION.md    # Frontend integration
-    ├── DEPLOYMENT_CHECKLIST.md      # Deployment guide
-    ├── IPFS_SETUP.md               # IPFS configuration
-    └── VOTING_IMPLEMENTATION.md     # Voting system details
+├── ARCHITECTURE.md              # Code structure guide
+├── BLOCKCHAIN_INTEGRATION.md    # Frontend integration
+├── DEPLOYMENT_CHECKLIST.md      # Deployment guide
+├── IPFS_SETUP.md               # IPFS configuration
+└── VOTING_IMPLEMENTATION.md     # Voting system details
 ```
 
 ---
@@ -217,8 +216,8 @@ npm test
 
 ### Integration Tests
 ```bash
-# Test complete workflow: Submit → Select Jurors → Vote → Resolve
-anchor test tests/complete-vote.test.ts
+# Run all integration tests including complete workflow
+anchor test
 ```
 
 ---
