@@ -1,12 +1,18 @@
-[provider]
-cluster = "devnet"
-wallet = "~/.config/solana/id.json"
+[toolchain]
+
+[features]
+resolution = true
+skip-lint = false
 
 [programs.devnet]
-solsafe_program = "Hvo63PGhSivug4ju5bEWrVwLuDukk45DcKBZM2XPUUVr"
+solsafe_program = "5cJv3iWdbqPTgXMf6iWKYJoXUwVMtMWfZYrwi2w9LWNJ"
 
 [registry]
 url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "ts-mocha -t 1000000 tests/**/*.ts"

@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount};
 use spl_token::instruction::AuthorityType;
 
-declare_id!("Hvo63PGhSivug4ju5bEWrVwLuDukk45DcKBZM2XPUUVr");
+declare_id!("5cJv3iWdbqPTgXMf6iWKYJoXUwVMtMWfZYrwi2w9LWNJ");
 
 pub mod state;
 pub mod instructions;
