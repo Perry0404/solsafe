@@ -6,7 +6,7 @@ import { PublicKey } from '@solana/web3.js';
 // Import your IDL
 // import IDL from '../idl/solsafe_program.json';
 
-const PROGRAM_ID = new PublicKey('Hvo63PGhSivug4ju5bEWrVwLuDukk45DcKBZM2XPUUVr');
+const PROGRAM_ID = new PublicKey('5cJv3iWdbqPTgXMf6iWKYJoXUwVMtMWfZYrwi2w9LWNJ');
 
 interface CaseData {
   publicKey: PublicKey;
