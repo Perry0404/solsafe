@@ -334,7 +334,7 @@ Contributions are welcome! Please follow these steps:
 - ⚠️ Add rate limiting to backend
 - ⚠️ Use multisig for admin operations
 
-**Report security vulnerabilities to**: [security contact information]
+**Report security vulnerabilities**: Please open a security issue on GitHub or contact the maintainers directly.
 
 ---
 
