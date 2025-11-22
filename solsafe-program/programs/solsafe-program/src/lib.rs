@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount};
 use spl_token::instruction::AuthorityType;
 
-declare_id!("ReplaceAfterDeploy1234567890");
+declare_id!("ELuQ38SztUfu7vBaR9P2sHEtSFTZkU1UDvTouoWfnQC3");
 
 mod state;
 use state::{GlobalConfig, CaseAccount, CaseStatus, VoteRecord};

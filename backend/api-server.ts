@@ -1,10 +1,26 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import multer from 'multer';
-import { create, IPFSHTTPClient } from 'ipfs-http-client';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+// IPFS client will be initialized lazily when needed
+let ipfs: any = null;
+async function getIPFSClient() {
+  if (!ipfs) {
+    const { create } = await import('ipfs-http-client/src/index.js');
+    ipfs = create({
+      url: process.env.IPFS_URL || 'https://ipfs.infura.io:5001/api/v0',
+      headers: process.env.INFURA_PROJECT_ID ? {
+        authorization: `Basic ${Buffer.from(
+          `${process.env.INFURA_PROJECT_ID}:${process.env.INFURA_PROJECT_SECRET}`
+        ).toString('base64')}`,
+      } : undefined,
+    });
+  }
+  return ipfs;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,16 +47,6 @@ const upload = multer({
   },
 });
 
-// Initialize IPFS client
-const ipfs: IPFSHTTPClient = create({
-  url: process.env.IPFS_URL || 'https://ipfs.infura.io:5001/api/v0',
-  headers: process.env.INFURA_PROJECT_ID ? {
-    authorization: `Basic ${Buffer.from(
-      `${process.env.INFURA_PROJECT_ID}:${process.env.INFURA_PROJECT_SECRET}`
-    ).toString('base64')}`,
-  } : undefined,
-});
-
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'SolSafe API server is running' });
@@ -59,7 +65,8 @@ app.post('/api/upload-base64', async (req: Request, res: Response) => {
     const buffer = Buffer.from(fileBase64, 'base64');
 
     // Upload to IPFS
-    const result = await ipfs.add(buffer);
+    const ipfsClient = await getIPFSClient();
+    const result = await ipfsClient.add(buffer);
     const cid = result.cid.toString();
     const url = `https://ipfs.io/ipfs/${cid}`;
 
@@ -91,7 +98,8 @@ app.post('/api/upload', upload.single('file'), async (req: Request, res: Respons
     }
 
     // Upload to IPFS
-    const result = await ipfs.add(req.file.buffer);
+    const ipfsClient = await getIPFSClient();
+    const result = await ipfsClient.add(req.file.buffer);
     const cid = result.cid.toString();
     const url = `https://ipfs.io/ipfs/${cid}`;
 
@@ -125,7 +133,8 @@ app.post('/api/upload-evidence', upload.single('file'), async (req: Request, res
     const { caseId, reporter, scamAddress, description } = req.body;
 
     // Upload file to IPFS
-    const fileResult = await ipfs.add(req.file.buffer);
+    const ipfsClient = await getIPFSClient();
+    const fileResult = await ipfsClient.add(req.file.buffer);
     const fileCid = fileResult.cid.toString();
     const fileUrl = `https://ipfs.io/ipfs/${fileCid}`;
 
@@ -147,7 +156,7 @@ app.post('/api/upload-evidence', upload.single('file'), async (req: Request, res
     };
 
     // Upload metadata to IPFS
-    const metadataResult = await ipfs.add(JSON.stringify(metadata, null, 2));
+    const metadataResult = await ipfsClient.add(JSON.stringify(metadata, null, 2));
     const metadataCid = metadataResult.cid.toString();
     const metadataUrl = `https://ipfs.io/ipfs/${metadataCid}`;
 
@@ -181,7 +190,8 @@ app.post('/api/upload-json', async (req: Request, res: Response) => {
     }
 
     // Upload JSON to IPFS
-    const result = await ipfs.add(JSON.stringify(data, null, 2));
+    const ipfsClient = await getIPFSClient();
+    const result = await ipfsClient.add(JSON.stringify(data, null, 2));
     const cid = result.cid.toString();
     const url = `https://ipfs.io/ipfs/${cid}`;
 
