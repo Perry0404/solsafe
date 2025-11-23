@@ -1,0 +1,23 @@
+use anchor_lang::prelude::*;
+use crate::state::{CaseAccount, CaseStatus, CaseState};
+use crate::ErrorCode;
+
+#[derive(Accounts)]
+pub struct RequestJurors<'info> {
+    #[account(mut)]
+    pub case_account: Account<'info, CaseAccount>,
+    /// CHECK: Switchboard VRF account
+    pub vrf_account: AccountInfo<'info>,
+    pub authority: Signer<'info>,
+}
+
+pub fn handler(ctx: Context<RequestJurors>, _case_id: u64) -> Result<()> {
+    let case = &mut ctx.accounts.case_account;
+    require!(case.status == CaseStatus::Open, ErrorCode::CaseNotOpen);
+    require!(case.state == CaseState::PendingJurors, ErrorCode::InvalidCase);
+
+    case.vrf_request = *ctx.accounts.vrf_account.key;
+    
+    msg!("VRF request initiated for case {}", case.case_id);
+    Ok(())
+}

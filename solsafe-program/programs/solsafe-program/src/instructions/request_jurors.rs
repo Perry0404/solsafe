@@ -1,21 +1,25 @@
 use anchor_lang::prelude::*;
-use crate::state::{CaseAccount, CaseStatus};
+use crate::state::{CaseAccount, CaseState};
 use crate::ErrorCode;
 
 #[derive(Accounts)]
 pub struct RequestJurors<'info> {
     #[account(mut)]
     pub case_account: Account<'info, CaseAccount>,
-    /// CHECK: VRF account from Switchboard
-    pub vrf_account: AccountInfo<'info>,
+    /// CHECK: Switchboard randomness account - will be validated in handler
+    pub randomness_account: AccountInfo<'info>,
     pub authority: Signer<'info>,
 }
 
 pub fn handler(ctx: Context<RequestJurors>, case_id: u64) -> Result<()> {
     let case = &mut ctx.accounts.case_account;
+    
     require!(case.case_id == case_id, ErrorCode::InvalidCase);
-    require!(case.status == CaseStatus::Open, ErrorCode::CaseNotOpen);
+    require!(case.status == crate::state::CaseStatus::Open, ErrorCode::CaseNotOpen);
 
-    case.vrf_request = *ctx.accounts.vrf_account.to_account_info().key;
+    // Store the randomness account pubkey for later use in select_jurors
+    case.vrf_request = ctx.accounts.randomness_account.key();
+    case.state = CaseState::PendingJurors;
+    
     Ok(())
 }

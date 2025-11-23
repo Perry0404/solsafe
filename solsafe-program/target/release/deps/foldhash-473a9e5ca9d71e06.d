@@ -1,0 +1,10 @@
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\release\deps\foldhash-473a9e5ca9d71e06.d: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\fast.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\quality.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\seed.rs
+
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\release\deps\libfoldhash-473a9e5ca9d71e06.rlib: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\fast.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\quality.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\seed.rs
+
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\release\deps\libfoldhash-473a9e5ca9d71e06.rmeta: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\fast.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\quality.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\seed.rs
+
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\lib.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\fast.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\quality.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\foldhash-0.1.5\src\seed.rs:

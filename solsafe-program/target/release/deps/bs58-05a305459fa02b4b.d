@@ -1,0 +1,10 @@
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\release\deps\bs58-05a305459fa02b4b.d: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\alphabet.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\decode.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\encode.rs
+
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\release\deps\libbs58-05a305459fa02b4b.rlib: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\alphabet.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\decode.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\encode.rs
+
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\release\deps\libbs58-05a305459fa02b4b.rmeta: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\alphabet.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\decode.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\encode.rs
+
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\lib.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\alphabet.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\decode.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\bs58-0.4.0\src\encode.rs:

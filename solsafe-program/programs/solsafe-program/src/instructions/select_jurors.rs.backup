@@ -1,0 +1,73 @@
+use anchor_lang::prelude::*;
+use crate::state::{CaseAccount, CaseState, GlobalConfig};
+use crate::ErrorCode;
+
+#[derive(Accounts)]
+pub struct SelectJurors<'info> {
+    #[account(mut)]
+    pub case_account: Account<'info, CaseAccount>,
+    #[account(
+        seeds = [b"config"],
+        bump = config.bump
+    )]
+    pub config: Account<'info, GlobalConfig>,
+    /// CHECK: Switchboard VRF account  
+    pub vrf_account: AccountInfo<'info>,
+}
+
+pub fn handler(ctx: Context<SelectJurors>) -> Result<()> {
+    let case = &mut ctx.accounts.case_account;
+    let config = &ctx.accounts.config;
+
+    require!(case.vrf_request != Pubkey::default(), ErrorCode::VrfNotReady);
+    require!(case.state == CaseState::PendingJurors, ErrorCode::InvalidCase);
+
+    let vrf_info = ctx.accounts.vrf_account.to_account_info();
+    let randomness: [u8; 32] = {
+        let data = vrf_info.try_borrow_data()?;
+        
+        if data.len() >= 32 {
+            match VrfAccountData::new(&data) {
+                Ok(vrf_data) => {
+                    if vrf_data.status != VrfStatus::StatusVerified {
+                        return Err(ErrorCode::VrfNotReady.into());
+                    }
+                    vrf_data.get_result()?
+                },
+                Err(_) => {
+                    let mut arr = [0u8; 32];
+                    arr.copy_from_slice(&data[..32]);
+                    arr
+                }
+            }
+        } else {
+            let mut tmp = [0u8; 32];
+            tmp[..8].copy_from_slice(&case.case_id.to_le_bytes());
+            tmp
+        }
+    };
+
+    let num_jurors: usize = 3;
+    let validator_count = config.validator_list.len();
+    require!(validator_count >= num_jurors, ErrorCode::NotEnoughValidators);
+
+    case.juror_candidates = config.validator_list.clone();
+
+    let mut selected = Vec::with_capacity(num_jurors);
+    for i in 0..num_jurors {
+        let offset = i * 10;
+        let idx = u32::from_le_bytes([
+            randomness[offset % 32],
+            randomness[(offset + 1) % 32],
+            randomness[(offset + 2) % 32],
+            randomness[(offset + 3) % 32],
+        ]) as usize % validator_count;
+        selected.push(config.validator_list[idx]);
+    }
+    
+    case.jurors = selected;
+    case.state = CaseState::Voting;
+
+    msg!("Selected {} jurors for case {}", num_jurors, case.case_id);
+    Ok(())
+}

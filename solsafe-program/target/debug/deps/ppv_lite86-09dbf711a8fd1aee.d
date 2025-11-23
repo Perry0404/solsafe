@@ -1,0 +1,9 @@
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\debug\deps\ppv_lite86-09dbf711a8fd1aee.d: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\soft.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\types.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\x86_64\mod.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\x86_64\sse2.rs
+
+C:\Users\HP SPECTRE X360 13\solsafe\solsafe-program\target\debug\deps\libppv_lite86-09dbf711a8fd1aee.rmeta: C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\lib.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\soft.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\types.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\x86_64\mod.rs C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\x86_64\sse2.rs
+
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\lib.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\soft.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\types.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\x86_64\mod.rs:
+C:\Users\HP\ SPECTRE\ X360\ 13\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\ppv-lite86-0.2.21\src\x86_64\sse2.rs:
