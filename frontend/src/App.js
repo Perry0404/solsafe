@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
-import Dashboard from "./Dashboard";
+import Dashboard from "./Dashboard.tsx";
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
