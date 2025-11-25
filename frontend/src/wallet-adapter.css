@@ -1,0 +1,66 @@
+/* Custom styles for Solana Wallet Adapter */
+
+/* Change "Select Wallet" button text to "Connect Wallet" */
+.wallet-adapter-button:not(.wallet-adapter-button-trigger)::before {
+  content: 'Connect Wallet' !important;
+}
+
+.wallet-adapter-button:not(.wallet-adapter-button-trigger) {
+  font-size: 0 !important;
+}
+
+.wallet-adapter-button:not(.wallet-adapter-button-trigger)::before {
+  font-size: 14px;
+}
+
+/* Style the connect button */
+.wallet-adapter-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 12px 24px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.wallet-adapter-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* Connected wallet button */
+.wallet-adapter-button-trigger {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* Modal styles */
+.wallet-adapter-modal-wrapper {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.wallet-adapter-modal {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 15px !important;
+}
+
+.wallet-adapter-modal-title {
+  color: white !important;
+}
+
+.wallet-adapter-modal-list {
+  background: transparent !important;
+}
+
+.wallet-adapter-modal-list-item {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 10px !important;
+  margin: 5px 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.wallet-adapter-modal-list-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateX(5px) !important;
+}

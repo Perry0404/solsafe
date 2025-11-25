@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
+
 export default function Dashboard() {
   const { publicKey, connected } = useWallet();
-  const [activeTab, setActiveTab] = useState('submit');
+
 
   return (
     <div style={{
