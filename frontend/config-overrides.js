@@ -1,21 +1,22 @@
 const webpack = require('webpack');
 
 module.exports = function override(config) {
-  const fallback = config.resolve.fallback || {};
-  
-  Object.assign(fallback, {
+  config.resolve.fallback = {
+    ...config.resolve.fallback,
     crypto: require.resolve('crypto-browserify'),
     stream: require.resolve('stream-browserify'),
-    buffer: require.resolve('buffer')
-  });
+    buffer: require.resolve('buffer/'),
+  };
   
-  config.resolve.fallback = fallback;
-  
-  config.plugins = (config.plugins || []).concat([
+  config.plugins = [
+    ...config.plugins,
     new webpack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer']
-    })
-  ]);
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser',
+      process: 'process/browser',
+    }),
+  ];
   
   return config;
 };
+
