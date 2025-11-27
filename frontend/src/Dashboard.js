@@ -78,7 +78,20 @@ export default function Dashboard() {
   };
 
   const handleInitialize = async () => {
-    if (!program || !publicKey) return;
+    console.log('🔵 Initialize button clicked!');
+    console.log('Program:', program);
+    console.log('PublicKey:', publicKey?.toBase58());
+    console.log('Connected:', connected);
+    
+    if (!publicKey) {
+      alert('⚠️ Wallet not connected!\n\nPlease click the "Select Wallet" button at the top right and connect your wallet first.');
+      return;
+    }
+    
+    if (!program) {
+      alert('⚠️ Program not loaded!\n\nPlease refresh the page and reconnect your wallet.');
+      return;
+    }
     
     setInitializing(true);
     try {
@@ -90,7 +103,9 @@ export default function Dashboard() {
         program.programId
       );
 
-      console.log('Initializing program with config:', configPda.toBase58());
+      console.log('🟢 Initializing program...');
+      console.log('Config PDA:', configPda.toBase58());
+      console.log('Admin wallet:', publicKey.toBase58());
 
       const tx = await program.methods
         .initialize(3, 5) // quorum: 3, minJurors: 5
@@ -101,14 +116,16 @@ export default function Dashboard() {
         })
         .rpc();
 
-      alert(`Program initialized! Transaction: ${tx}`);
+      console.log('✅ Transaction successful:', tx);
+      alert(`✅ Program initialized successfully!\n\nTransaction: ${tx}\n\nYou can now submit cases!`);
       await fetchCases();
     } catch (err) {
-      console.error('Initialize error:', err);
-      if (err.message.includes('already in use')) {
-        alert('Program is already initialized! You can now submit cases.');
+      console.error('🔴 Initialize error:', err);
+      if (err.message && err.message.includes('already in use')) {
+        alert('✅ Program is already initialized!\n\nYou can now submit cases.');
+        await fetchCases();
       } else {
-        alert('Failed to initialize: ' + err.message);
+        alert('❌ Failed to initialize:\n\n' + (err.message || JSON.stringify(err)));
       }
     } finally {
       setInitializing(false);
@@ -179,21 +196,22 @@ export default function Dashboard() {
             </div>
 
             <div className="content">
-              {!connected && (
+              {!publicKey && (
                 <div className="notice">
-                  <h3>?? Wallet Not Connected</h3>
-                  <p>Please connect your Solana wallet to use the dashboard.</p>
+                  <h3>⚠️ Wallet Not Connected</h3>
+                  <p>Please connect your Solana wallet using the button at the top right to use the dashboard.</p>
                 </div>
               )}
 
               {activeTab === 'dashboard' && (
                 <div>
                   <h2>Profile</h2>
-                  {connected ? (
+                  {publicKey ? (
                     <div>
-                      <p><strong>Address:</strong> {publicKey?.toBase58()}</p>
+                      <p><strong>Address:</strong> {publicKey.toBase58()}</p>
                       <p><strong>Network:</strong> Devnet</p>
                       <p><strong>Total Cases:</strong> {cases.length}</p>
+                      <p><strong>Program:</strong> {program ? '✅ Connected' : '❌ Not loaded'}</p>
                     </div>
                   ) : (
                     <p>Connect your wallet to view your profile.</p>
@@ -201,7 +219,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {activeTab === 'submit' && connected && (
+              {activeTab === 'submit' && publicKey && (
                 <div>
                   <h2>Submit New Case</h2>
                   <p style={{ marginBottom: '20px', color: '#aaa' }}>
@@ -297,7 +315,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {activeTab === 'cases' && connected && (
+              {activeTab === 'cases' && publicKey && (
                 <div>
                   <h2>All Cases</h2>
                   {loading && <p>Loading cases from blockchain...</p>}
@@ -323,7 +341,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {activeTab === 'vote' && connected && (
+              {activeTab === 'vote' && publicKey && (
                 <div>
                   <h2>Vote on Case</h2>
                   <div className="form-group">
@@ -360,7 +378,7 @@ export default function Dashboard() {
       </main>
 
       <footer style={{ textAlign: 'center', padding: '40px 20px', marginTop: '60px' }}>
-        <p>� 2025 SolSafe. Powered by Solana & Switchboard VRF.</p>
+        <p>� 2025 SolSafe. Powered by Solana & Switchboard VRF.</p>
       </footer>
 
       <style>{`
