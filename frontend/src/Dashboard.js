@@ -97,6 +97,7 @@ export default function Dashboard() {
     setInitializing(true);
     try {
       const { PublicKey: PK, SystemProgram } = await import('@solana/web3.js');
+      const { BN } = await import('@coral-xyz/anchor');
       
       // Find global_config PDA (updated for validator integration)
       const [configPda] = PK.findProgramAddressSync(
@@ -110,7 +111,7 @@ export default function Dashboard() {
 
       // Initialize with 5 validators, 2/3 consensus = 4 required
       const tx = await program.methods
-        .initialize(new (await import('@coral-xyz/anchor')).BN(5), new (await import('@coral-xyz/anchor')).BN(2))
+        .initialize(new BN(5), new BN(2))
         .accounts({
           globalConfig: configPda,
           admin: publicKey,
