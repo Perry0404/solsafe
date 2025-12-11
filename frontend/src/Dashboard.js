@@ -3,8 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { BN } from '@coral-xyz/anchor';
 import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
 
 export default function Dashboard() {
@@ -98,8 +96,10 @@ export default function Dashboard() {
     
     setInitializing(true);
     try {
-      // Find global_config PDA (updated for validator integration)
-      const [configPda] = PublicKey.findProgramAddressSync(
+      const { PublicKey: PK, SystemProgram } = await import('@solana/web3.js');
+      
+      // Find global_config PDA
+      const [configPda] = PK.findProgramAddressSync(
         [Buffer.from('global_config')],
         program.programId
       );
@@ -108,9 +108,8 @@ export default function Dashboard() {
       console.log('Global Config PDA:', configPda.toBase58());
       console.log('Admin wallet:', publicKey.toBase58());
 
-      // Initialize with 5 validators, 2/3 consensus = 4 required
       const tx = await program.methods
-        .initialize(new BN(5), new BN(2))
+        .initialize(5, 2) // quorum: 5 validators, min_jurors: 2 (2/3 consensus)
         .accounts({
           globalConfig: configPda,
           admin: publicKey,
@@ -119,12 +118,12 @@ export default function Dashboard() {
         .rpc();
 
       console.log('✅ Transaction successful:', tx);
-      alert(`✅ Program initialized successfully with validator integration!\n\nTransaction: ${tx}\n\nNext: Sync validators, then submit cases!`);
+      alert(`✅ Program initialized successfully with validator integration!\n\nTransaction: ${tx}\n\nYou can now submit cases and validators can vote!`);
       await fetchCases();
     } catch (err) {
       console.error('🔴 Initialize error:', err);
       if (err.message && err.message.includes('already in use')) {
-        alert('✅ Program is already initialized!\n\nYou can now submit cases and vote with validators.');
+        alert('✅ Program is already initialized!\n\nYou can now submit cases.');
         await fetchCases();
       } else {
         alert('❌ Failed to initialize:\n\n' + (err.message || JSON.stringify(err)));
