@@ -98,32 +98,33 @@ export default function Dashboard() {
     try {
       const { PublicKey: PK, SystemProgram } = await import('@solana/web3.js');
       
-      // Find config PDA
+      // Find global_config PDA (updated for validator integration)
       const [configPda] = PK.findProgramAddressSync(
-        [Buffer.from('config')],
+        [Buffer.from('global_config')],
         program.programId
       );
 
-      console.log('🟢 Initializing program...');
-      console.log('Config PDA:', configPda.toBase58());
+      console.log('🟢 Initializing program with validator integration...');
+      console.log('Global Config PDA:', configPda.toBase58());
       console.log('Admin wallet:', publicKey.toBase58());
 
+      // Initialize with 5 validators, 2/3 consensus = 4 required
       const tx = await program.methods
-        .initialize(3, 5) // quorum: 3, minJurors: 5
+        .initialize(new (await import('@coral-xyz/anchor')).BN(5), new (await import('@coral-xyz/anchor')).BN(2))
         .accounts({
-          config: configPda,
+          globalConfig: configPda,
           admin: publicKey,
           systemProgram: SystemProgram.programId,
         })
         .rpc();
 
       console.log('✅ Transaction successful:', tx);
-      alert(`✅ Program initialized successfully!\n\nTransaction: ${tx}\n\nYou can now submit cases!`);
+      alert(`✅ Program initialized successfully with validator integration!\n\nTransaction: ${tx}\n\nNext: Sync validators, then submit cases!`);
       await fetchCases();
     } catch (err) {
       console.error('🔴 Initialize error:', err);
       if (err.message && err.message.includes('already in use')) {
-        alert('✅ Program is already initialized!\n\nYou can now submit cases.');
+        alert('✅ Program is already initialized!\n\nYou can now submit cases and vote with validators.');
         await fetchCases();
       } else {
         alert('❌ Failed to initialize:\n\n' + (err.message || JSON.stringify(err)));
