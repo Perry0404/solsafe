@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("F9oAAKaMWeyrSUBE1VJLg23SWr7CTAo31HdnMAqQxzar");
+declare_id!("FfV3AHU6WS7aPz53DnVvWBMEZR46ydGkEtKpLiKfRTrR");
 
 pub mod state;
 pub mod instructions;
@@ -64,5 +64,13 @@ pub mod solsafe_program {
 
     pub fn vote(ctx: Context<Vote>, approve: bool) -> Result<()> {
         instructions::vote::handler(ctx, approve)
+    }
+
+    pub fn vote_and_freeze(ctx: Context<VoteWithFreeze>, approve: bool) -> Result<()> {
+        instructions::vote::handler_freeze(ctx, approve)
+    }
+
+    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> {
+        instructions::sync_validators::handler(ctx, validators)
     }
 }
