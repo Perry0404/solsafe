@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { BN } from '@coral-xyz/anchor';
 import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
 
 export default function Dashboard() {
@@ -96,11 +98,8 @@ export default function Dashboard() {
     
     setInitializing(true);
     try {
-      const { PublicKey: PK, SystemProgram } = await import('@solana/web3.js');
-      const { BN } = await import('@coral-xyz/anchor');
-      
       // Find global_config PDA (updated for validator integration)
-      const [configPda] = PK.findProgramAddressSync(
+      const [configPda] = PublicKey.findProgramAddressSync(
         [Buffer.from('global_config')],
         program.programId
       );
