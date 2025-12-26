@@ -1,6 +1,6 @@
-/* eslint-disable no-undef */
+﻿/* eslint-disable no-undef */
 import { useMemo, useState, useEffect } from 'react';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 
@@ -12,29 +12,46 @@ const PROGRAM_ID = new PublicKey('FfV3AHU6WS7aPz53DnVvWBMEZR46ydGkEtKpLiKfRTrR')
 export function useCases() {
   const { connection } = useConnection();
   const wallet = useWallet();
+  const anchorWallet = useAnchorWallet(); // This is the proper hook for Anchor
   const { publicKey } = wallet;
 
   const [cases, setCases] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Create program instance
+  // Create program instance using anchorWallet
   const program = useMemo(() => {
-    if (!wallet.publicKey) return null;
+    console.log('🔍 useCases Debug:');
+    console.log('  - wallet.publicKey:', wallet?.publicKey?.toBase58());
+    console.log('  - wallet.connected:', wallet?.connected);
+    console.log('  - anchorWallet:', anchorWallet);
+    console.log('  - anchorWallet.publicKey:', anchorWallet?.publicKey?.toBase58());
+
+    // Use anchorWallet which is specifically designed for Anchor
+    if (!anchorWallet) {
+      console.warn('⚠️ AnchorWallet not ready yet');
+      return null;
+    }
 
     try {
       const provider = new AnchorProvider(
         connection,
-        wallet,
-        { commitment: 'confirmed' }
+        anchorWallet,
+        { 
+          commitment: 'confirmed',
+          preflightCommitment: 'confirmed'
+        }
       );
 
-      return new Program(IDL, PROGRAM_ID, provider);
+      const prog = new Program(IDL, PROGRAM_ID, provider);
+      console.log('✅ Program created successfully!');
+      console.log('   Program ID:', prog.programId.toBase58());
+      return prog;
     } catch (err) {
-      console.error('Error creating program:', err);
+      console.error('❌ Error creating program:', err);
       return null;
     }
-  }, [connection, wallet.publicKey]);
+  }, [connection, anchorWallet]);
 
   // Fetch all cases from blockchain
   const fetchCases = async () => {
@@ -78,7 +95,11 @@ export function useCases() {
   };
 
   // Submit a new case
-  const submitCase = async (caseId, evidenceUrl, scamAddress) => {
+  const submitCase = async (
+    caseId,
+    evidenceUrl,
+    scamAddress
+  ) => {
     if (!program || !publicKey) {
       throw new Error('Wallet not connected');
     }
@@ -266,4 +287,3 @@ export function formatCaseState(state) {
   if (state.executed) return 'Executed';
   return 'Unknown';
 }
-
