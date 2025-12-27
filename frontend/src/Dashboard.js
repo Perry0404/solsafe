@@ -102,10 +102,6 @@ export default function Dashboard() {
       console.log('🟢 Initializing program with validator integration...');
       console.log('Global Config PDA:', configPda.toBase58());
       console.log('Admin wallet:', publicKey.toBase58());
-=======
-      console.log('🟢 Initializing program with validator integration...');
-      console.log('Global Config PDA:', configPda.toBase58());
-      console.log('Admin wallet:', publicKey.toBase58());
 
       const tx = await program.methods
         .initialize(5, 2) // quorum: 5 validators, min_jurors: 2 (2/3 consensus)
@@ -118,22 +114,6 @@ export default function Dashboard() {
 
       console.log('✅ Transaction successful:', tx);
       alert(`✅ Program initialized successfully with 5 validators!\n\nTransaction: ${tx}\n\nYou can now submit cases. Validators can vote on cases!`);
-      await fetchCases();
-    } catch (err) {
-      console.error('🔴 Initialize error:', err);
-      if (err.message && err.message.includes('already in use')) {
-        alert('✅ Program is already initialized!\n\nYou can now submit cases.');
-        await fetchCases();
-      } else {
-        alert('❌ Failed to initialize:\n\n' + (err.message || JSON.stringify(err)));
-      }
-    } finally {
-      setInitializing(false);
-    }
-  };
-=======
-      console.log('✅ Transaction successful:', tx);
-      alert(`✅ Program initialized successfully with validator integration!\n\nTransaction: ${tx}\n\nYou can now submit cases and validators can vote!`);
       await fetchCases();
     } catch (err) {
       console.error('🔴 Initialize error:', err);
