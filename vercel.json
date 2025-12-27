@@ -1,35 +1,16 @@
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "frontend/build/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "backend/api-server.ts",
-      "use": "@vercel/node"
-    }
-  ],
+﻿{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "installCommand": "npm install",
+  "framework": null,
   "routes": [
     {
       "src": "/api/(.*)",
       "dest": "/backend/api-server.ts"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "/frontend/build/static/$1"
-    },
-    {
-      "src": "/(.*\\.(ico|png|jpg|jpeg|svg|js|css|json|txt))",
-      "dest": "/frontend/build/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "/frontend/build/index.html"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "installCommand": "echo 'Using pre-built frontend'"
+  ]
 }
