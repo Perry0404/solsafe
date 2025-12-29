@@ -1,224 +1,75 @@
-﻿# SolSafe - Privacy-Preserving Scam Prevention on Solana
+﻿# SolSafe 🔒
 
-<div align="center">
+**Decentralized Scam Prevention on Solana**
 
-![Solana](https://img.shields.io/badge/Solana-Blockchain-9945FF?style=for-the-badge&logo=solana)
-![Anchor](https://img.shields.io/badge/Anchor-0.29.0-blue?style=for-the-badge)
-![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-
-**A decentralized platform for community-driven scam prevention with advanced privacy features**
-
-[Features](#features) • [Architecture](#architecture) • [ZK Proofs](#zk-proofs) • [Getting Started](#getting-started) • [Documentation](#documentation)
-
-</div>
+Community-driven platform for identifying and preventing crypto scams through democratic jury voting.
 
 ---
 
-## 🚀 Overview
+## 🚀 Features
 
-SolSafe empowers the Solana community to collaboratively identify and prevent scams through a decentralized jury system. With cutting-edge Zero-Knowledge proofs and Multi-Party Computation, jurors can vote privately while maintaining full transparency of outcomes.
-
-### Key Highlights
-
-- �� **Private Voting** - Zero-Knowledge proofs for anonymous juror decisions
-- 🤝 **Multi-Party Computation** - Arcium MPC for secure evidence sharing
-- 📊 **ZK Compression** - Light Protocol for 95% storage reduction
-- 💰 **Confidential Transfers** - Dust Protocol for compliant privacy
-- ⚖️ **Decentralized Jury** - Community-driven case resolution
-- 🔐 **Token Freezing** - Automated protection against verified scams
+- **Community Reporting** - Submit suspected scam cases with evidence
+- **Decentralized Jury** - Random validator selection for unbiased decisions  
+- **Democratic Voting** - 2/3 majority threshold for case approval
+- **Automated Protection** - Smart contract-based token freezing
+- **Privacy-First** - Advanced cryptographic privacy features (coming soon)
 
 ---
 
-## ✨ Features
+## 🏗️ Built With
 
-### Core Functionality
-- **Case Submission**: Report suspected scams with evidence (IPFS-backed)
-- **Jury Selection**: VRF-based random juror selection from validator pool
-- **Democratic Voting**: 2/3 majority threshold for case approval
-- **Token Freezing**: Automatic freezing of scammer wallets upon approval
-
-### 🆕 Privacy Features (v0.2.0)
-
-#### 🔐 Zero-Knowledge Proofs
-- **Private Voting**: Cast votes without revealing your choice
-- **Vote Commitments**: Cryptographic commitments prevent vote manipulation
-- **Nullifier System**: Double-vote prevention without identity exposure
-- **Optional Reveal**: Jurors can reveal votes after tallying
-
-#### 🛡️ Arcium MPC Integration
-- **Threshold Encryption**: Evidence encrypted with t-of-n threshold
-- **Secure Evidence Sharing**: Only authorized jurors can decrypt
-- **Private Tallying**: Aggregate votes without revealing individual choices
-- **Collusion Resistance**: Security against malicious minorities
-
-#### 🗜️ Light Protocol Compression
-- **Compressed State**: 95% reduction in storage costs
-- **Merkle Trees**: Efficient proof verification
-- **Batch Operations**: Multiple votes in single transaction
-- **Scalable Privacy**: O(log n) verification complexity
-
-#### 💸 Dust Protocol Confidential Transfers
-- **Encrypted Balances**: ElGamal encryption for privacy
-- **Range Proofs**: Prove amount validity without revealing value
-- **Compliance Built-in**: Auditor access for regulatory requirements
-- **Homomorphic Operations**: Update balances without decryption
+- **Solana** - High-performance blockchain
+- **Anchor** - Solana program framework
+- **React** - Modern web interface
+- **IPFS** - Decentralized evidence storage
 
 ---
 
-## 🔐 ZK Proofs
+## 🚀 Quick Start
 
-### Private Voting Example
-```typescript
-// Generate vote commitment
-const commitment = await generateVoteCommitment(caseId, vote);
-const proof = await generateVoteProof(commitment);
-
-// Submit private vote
-await program.methods.privateVote(
-  caseId, 
-  commitment.commitment, 
-  commitment.nullifier, 
-  proof
-).rpc();
-```
-
-### MPC Evidence Encryption
-```typescript
-// Encrypt evidence for jurors (3-of-5 threshold)
-const { encryptedEvidence, shares } = await encryptEvidenceForMPC(
-  evidence,
-  jurorPublicKeys,
-  threshold: 3
-);
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js v16+
-- Rust v1.70+
-- Anchor CLI v0.29.0
-- Solana CLI v1.17.0
-
-### Installation
-
-```bash
+\\\ash
 # Clone repository
 git clone https://github.com/Perry0404/solsafe.git
 cd solsafe
 
-# Install smart contract dependencies
-cd solsafe-program
-anchor build
-
-# Install frontend dependencies
-cd ../frontend
-npm install
-```
-
-### Deployment
-
-```bash
-# Deploy smart contract
-cd solsafe-program
-anchor deploy --provider.cluster devnet
-
-# Start frontend
-cd ../frontend
-npm start
-```
+# Install and build
+cd solsafe-program && anchor build
+cd ../frontend && npm install && npm start
+\\\
 
 ---
 
-## 📖 Documentation
+## 📖 How It Works
 
-Comprehensive guides for implementation and deployment:
-
-- **[ZK Proofs Guide](./ZK_PROOFS_GUIDE.md)** - Complete architecture and implementation details
-- **[Deployment Checklist](./ZK_DEPLOYMENT_CHECKLIST.md)** - Step-by-step deployment procedures
-- **[Implementation Status](./ZK_IMPLEMENTATION_STATUS.md)** - Current feature status and verification
-
----
-
-## 🔧 Technology Stack
-
-### Smart Contract
-- **Anchor Framework** - Solana program development
-- **Rust** - Systems programming language
-- **SPL Token** - Token operations
-
-### ZK & Privacy
-- **Light Protocol** - ZK compression and state management
-- **Arcium** - Multi-party computation framework
-- **Dust Protocol** - Confidential transfers with compliance
-
-### Frontend
-- **React** - UI framework
-- **TypeScript** - Type-safe development
-- **Solana Web3.js** - Blockchain interaction
+1. **Report** - Community members submit suspected scam cases
+2. **Select** - System randomly selects jurors from validator pool
+3. **Vote** - Jurors review evidence and cast votes
+4. **Execute** - If approved, scammer's tokens are frozen automatically
 
 ---
 
-## 📋 Smart Contract Instructions
+## 🛣️ Roadmap
 
-### Public Instructions
-```rust
-submit_evidence(case_id, evidence, scam_address)
-vote(approve: bool)
-```
-
-### 🆕 Private Instructions
-```rust
-private_vote(case_id, commitment, nullifier, zk_proof)
-initialize_mpc(case_id, threshold, total_jurors)
-initiate_confidential_transfer(transfer_id, encrypted_amount, range_proof)
-```
-
----
-
-## 🎯 Roadmap
-
-### ✅ Phase 1: Core Platform (Completed)
-- [x] Smart contract architecture
-- [x] Jury selection mechanism
-- [x] Voting and freezing system
-
-### ✅ Phase 2: Privacy Features (Completed)
-- [x] ZK proof infrastructure
-- [x] Light Protocol compression
-- [x] Arcium MPC integration
-- [x] Dust Protocol confidential transfers
-
-### 🔄 Phase 3: Production Ready (In Progress)
-- [ ] Deploy production ZK circuits
-- [ ] Security audit
-- [ ] Mainnet deployment
+- ✅ Core platform and voting system
+- ✅ IPFS evidence storage
+- 🔄 Enhanced privacy features
+- �� Mobile application
+- 🔜 Cross-chain support
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+MIT License
 
 ---
 
-## 🙏 Acknowledgments
+## 🔗 Links
 
-- **Solana Foundation** - Blockchain infrastructure
-- **Light Protocol** - ZK compression technology
-- **Arcium** - Multi-party computation framework
-- **Dust Protocol** - Confidential transfers
+- [Documentation](./docs)
+- [Contributing Guidelines](./CONTRIBUTING.md)
+- [Security Policy](./SECURITY.md)
 
 ---
-
-<div align="center">
 
 **Made with ❤️ for the Solana Ecosystem**
-
-[⬆ Back to Top](#solsafe---privacy-preserving-scam-prevention-on-solana)
-
-</div>
