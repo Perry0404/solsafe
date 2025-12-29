@@ -13,7 +13,7 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "devnet"
-wallet = '~\.config\solana\id.json'
+wallet = 'C:\\Users\\HP SPECTRE X360 13\\.config\\solana\\id.json'
 
 [scripts]
 test = "ts-mocha -t 1000000 tests/**/*.ts"

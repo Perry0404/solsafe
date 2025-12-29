@@ -89,11 +89,6 @@ export default function Dashboard() {
       return;
     }
     
-    if (!program) {
-      alert('⚠️ Program not loaded!\n\nPlease refresh the page and reconnect your wallet.');
-      return;
-    }
-    
     setInitializing(true);
     try {
       const { PublicKey: PK, SystemProgram } = await import('@solana/web3.js');
@@ -118,7 +113,7 @@ export default function Dashboard() {
         .rpc();
 
       console.log('✅ Transaction successful:', tx);
-      alert(`✅ Program initialized successfully with validator integration!\n\nTransaction: ${tx}\n\nYou can now submit cases and validators can vote!`);
+      alert(`✅ Program initialized successfully with 5 validators!\n\nTransaction: ${tx}\n\nYou can now submit cases. Validators can vote on cases!`);
       await fetchCases();
     } catch (err) {
       console.error('🔴 Initialize error:', err);
@@ -156,7 +151,7 @@ export default function Dashboard() {
             fontWeight: "600",
           }}
         >
-          ? Home
+          ← Home
         </Link>
 
         <div className="hero">
@@ -171,28 +166,28 @@ export default function Dashboard() {
                 className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
                 onClick={() => setActiveTab('dashboard')}
               >
-                ?? Dashboard
+                📊 Dashboard
               </button>
               <button 
                 className={`nav-button ${activeTab === 'submit' ? 'active' : ''}`}
                 onClick={() => setActiveTab('submit')}
                 disabled={!connected}
               >
-                ?? Submit Case
+                📝 Submit Case
               </button>
               <button 
                 className={`nav-button ${activeTab === 'cases' ? 'active' : ''}`}
                 onClick={() => setActiveTab('cases')}
                 disabled={!connected}
               >
-                ?? View Cases
+                🔍 View Cases
               </button>
               <button 
                 className={`nav-button ${activeTab === 'vote' ? 'active' : ''}`}
                 onClick={() => setActiveTab('vote')}
                 disabled={!connected}
               >
-                ??? Vote
+                🗳️ Vote
               </button>
             </div>
 
@@ -204,6 +199,177 @@ export default function Dashboard() {
                 </div>
               )}
 
+              {activeTab === 'dashboard' && (
+                <div>
+                  <h2>Dashboard</h2>
+                  {publicKey ? (
+                    <div>
+                      <p><strong>Address:</strong> {publicKey.toBase58()}</p>
+                      <p><strong>Network:</strong> Devnet</p>
+                      <p><strong>Total Cases:</strong> {cases.length}</p>
+                      <p><strong>Program:</strong> {program ? '✅ Connected' : '❌ Not loaded'}</p>
+                      <p><strong>Validator Role:</strong> Can vote on cases</p>
+                    </div>
+                  ) : (
+                    <p>Connect your wallet to view your profile.</p>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'submit' && connected && (
+                <div>
+                  <h2>Submit New Case</h2>
+                  <p style={{ marginBottom: '20px', color: '#aaa' }}>
+                    Report a scam by submitting evidence to the blockchain. Each case requires a unique ID.
+                  </p>
+                  
+                  {cases.length === 0 && (
+                    <div style={{ 
+                      background: 'rgba(138, 43, 226, 0.1)', 
+                      border: '1px solid rgba(138, 43, 226, 0.3)',
+                      padding: '15px',
+                      borderRadius: '8px',
+                      marginBottom: '20px'
+                    }}>
+                      <p style={{ margin: '0 0 10px 0' }}>
+                        ⚠️ <strong>First time setup:</strong> The program needs to be initialized before submitting cases.
+                      </p>
+                      <button
+                        onClick={handleInitialize}
+                        disabled={initializing}
+                        style={{
+                          padding: '10px 20px',
+                          background: '#8a2be2',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: initializing ? 'not-allowed' : 'pointer',
+                          opacity: initializing ? 0.6 : 1
+                        }}
+                      >
+                        {initializing ? 'Initializing...' : '🚀 Initialize Program (One-time)'}
+                      </button>
+                    </div>
+                  )}
+                  
+                  <form onSubmit={handleSubmitCase} className="case-form">
+                    <div className="form-group">
+                      <label>Case ID: <span style={{ color: '#8a2be2' }}>*</span></label>
+                      <input
+                        type="number"
+                        value={caseId}
+                        onChange={(e) => setCaseId(e.target.value)}
+                        placeholder="Auto-generated next available ID"
+                        required
+                        disabled={submitting}
+                      />
+                      <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
+                        This ID is auto-generated. Use this number: <strong style={{ color: '#8a2be2' }}>{caseId || '1'}</strong>
+                      </small>
+                    </div>
+                    <div className="form-group">
+                      <label>Scam Address: <span style={{ color: '#8a2be2' }}>*</span></label>
+                      <input
+                        type="text"
+                        value={scamAddress}
+                        onChange={(e) => setScamAddress(e.target.value)}
+                        placeholder="Solana public key of the scammer's wallet"
+                        required
+                        disabled={submitting}
+                      />
+                      <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
+                        Example: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+                      </small>
+                    </div>
+                    <div className="form-group">
+                      <label>Evidence URL: <span style={{ color: '#8a2be2' }}>*</span></label>
+                      <input
+                        type="text"
+                        value={evidenceUrl}
+                        onChange={(e) => setEvidenceUrl(e.target.value)}
+                        placeholder="Link to evidence (IPFS, screenshot, etc.)"
+                        required
+                        disabled={submitting}
+                      />
+                      <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
+                        Example: ipfs://QmXyz... or https://example.com/evidence.jpg
+                      </small>
+                    </div>
+                    {submitError && (
+                      <div className="error-message">{submitError}</div>
+                    )}
+                    {submitSuccess && (
+                      <div className="success-message">{submitSuccess}</div>
+                    )}
+                    <button 
+                      type="submit" 
+                      className="cta-button"
+                      disabled={submitting}
+                    >
+                      {submitting ? 'Submitting...' : 'Submit Case'}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {activeTab === 'cases' && publicKey && (
+                <div>
+                  <h2>All Cases</h2>
+                  {loading && <p>Loading cases from blockchain...</p>}
+                  {error && <div className="error-message">{error}</div>}
+                  {!loading && !error && cases.length === 0 && (
+                    <p>No cases found. Submit the first case!</p>
+                  )}
+                  {!loading && cases.length > 0 && (
+                    <div className="cases-list">
+                      {cases.map((caseData, idx) => (
+                        <div key={idx} className="case-card">
+                          <h3>Case #{caseData.account.caseId.toString()}</h3>
+                          <p><strong>Status:</strong> {formatCaseStatus(caseData.account.status)}</p>
+                          <p><strong>State:</strong> {formatCaseState(caseData.account.state)}</p>
+                          <p><strong>Scam Address:</strong> {caseData.account.scamAddress.toBase58().slice(0, 20)}...</p>
+                          <p><strong>Evidence:</strong> <a href={caseData.account.evidence} target="_blank" rel="noopener noreferrer">View</a></p>
+                          <p><strong>Votes For:</strong> {caseData.account.votesFor} | <strong>Against:</strong> {caseData.account.votesAgainst}</p>
+                          <p><strong>Jurors:</strong> {caseData.account.jurors.length}/5</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'vote' && publicKey && (
+                <div>
+                  <h2>Vote on Case</h2>
+                  <div className="form-group">
+                    <label>Case ID:</label>
+                    <input
+                      type="number"
+                      value={selectedCaseId}
+                      onChange={(e) => setSelectedCaseId(e.target.value)}
+                      placeholder="Enter case ID to vote on"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                    <button
+                      className="cta-button"
+                      onClick={() => selectedCaseId && handleVote(parseInt(selectedCaseId), true)}
+                      disabled={!selectedCaseId}
+                    >
+                      ✅ Vote Approve
+                    </button>
+                    <button
+                      className="cta-button"
+                      style={{ backgroundColor: '#dc3545' }}
+                      onClick={() => selectedCaseId && handleVote(parseInt(selectedCaseId), false)}
+                      disabled={!selectedCaseId}
+                    >
+                      ❌ Vote Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+=======
               {activeTab === 'dashboard' && (
                 <div>
                   <h2>Profile</h2>
@@ -373,13 +539,14 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
+>>>>>>> dc8ec70c1935ea88e501c0e39a01f508ae701065
             </div>
           </div>
         </section>
       </main>
 
       <footer style={{ textAlign: 'center', padding: '40px 20px', marginTop: '60px' }}>
-        <p>� 2025 SolSafe. Powered by Solana & Switchboard VRF.</p>
+        <p>© 2025 SolSafe. Powered by Solana & Switchboard VRF.</p>
       </footer>
 
       <style>{`

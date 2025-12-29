@@ -7,7 +7,6 @@ pub mod instructions;
 
 use state::{GlobalConfig, CaseAccount, CaseStatus, CaseState};
 use instructions::*;
-
 #[error_code]
 pub enum ErrorCode {
     #[msg("Unauthorized")]
@@ -42,6 +41,10 @@ pub mod solsafe_program {
 
     pub fn update_validators(ctx: Context<UpdateValidators>, validators: Vec<Pubkey>) -> Result<()> {
         instructions::update_validators::handler(ctx, validators)
+    }
+
+    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> {
+        sync_validators::handler(ctx, validators)
     }
 
     pub fn submit_evidence(

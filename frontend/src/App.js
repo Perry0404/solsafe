@@ -1,10 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { clusterApiUrl } from '@solana/web3.js';
 import "./App.css";
 import Dashboard from "./Dashboard";
 
+// Import wallet adapter CSS
+import '@solana/wallet-adapter-react-ui/styles.css';
+
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Solana devnet configuration
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  
+  // Configure supported wallets
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter({ network }),
+    ],
+    [network]
+  );
 
   // Scroll effect for navbar color
   useEffect(() => {
@@ -17,7 +38,10 @@ export default function App() {
   }, []);
 
   return (
-    <Router>
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <Router>
       <Routes>
         {/* ✅ Home page */}
         <Route
@@ -44,16 +68,6 @@ export default function App() {
                     <li>
                       <a href="#solsafe" onClick={() => setMenuOpen(false)}>
                         Why SOLSAFE
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#community" onClick={() => setMenuOpen(false)}>
-                        Community
-                      </a>
-                    </li>
-                    <li>
-                      <a href="#waitlist" onClick={() => setMenuOpen(false)}>
-                        Waitlist
                       </a>
                     </li>
                     {/* ✅ React Router navigation to Dashboard */}
@@ -89,54 +103,9 @@ export default function App() {
                   By empowering the community to submit on-chain evidence, vote
                   on scam cases, and freeze illicit assets.
                 </p>
-                <a href="#whitepaper" className="cta-button">
-                  Join the Waitlist
-                </a>
-              </section>
-
-              {/* Waitlist Section */}
-              <section
-                id="whitepaper"
-                className="waitlist"
-                style={{ background: "#2e004d" }}
-              >
-                <h2>Join the Waitlist</h2>
-                <p>
-                  Be the first to know when SOLSAFE launches. Enter your email
-                  below — no spam, ever.
-                </p>
-                <form
-                  id="waitlist-form"
-                  action="waitlist.php"
-                  method="POST"
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: "10px",
-                    marginTop: "20px",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="you@domain.com"
-                    required
-                    style={{
-                      flex: "1 1 320px",
-                      padding: "14px 18px",
-                      borderRadius: "50px",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      background: "rgba(255,255,255,0.03)",
-                      color: "#fff",
-                      outline: "none",
-                      fontSize: "1rem",
-                    }}
-                  />
-                  <button type="submit" className="cta-button">
-                    Join Waitlist
-                  </button>
-                </form>
+                <Link to="/dashboard" className="cta-button">
+                  Launch Dashboard
+                </Link>
               </section>
 
               {/* Footer */}
@@ -153,6 +122,9 @@ export default function App() {
         {/* ✅ Dashboard page */}
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </Router>
+          </Router>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
   );
 }
