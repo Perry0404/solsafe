@@ -157,43 +157,6 @@ pub fn handler_freeze(ctx: Context<VoteWithFreeze>, approve: bool) -> Result<()>
 }
 
 fn freeze_scam_account(ctx: Context<VoteWithFreeze>) -> Result<()> {
-        ErrorCode::AlreadyVoted
-    );
-
-    // Record vote
-    if approve {
-        case.votes_for += 1;
-    } else {
-        case.votes_against += 1;
-    }
-    case.voted_jurors.push(ctx.accounts.juror.key());
-
-    // Calculate validator consensus threshold (2/3 majority)
-    let total_validators = config.validator_list.len() as u64;
-    let required_votes = (total_validators * 2) / 3 + 1;
-
-    msg!("Vote recorded. Votes for: {}, Required: {}", case.votes_for, required_votes);
-
-    // Auto-freeze if validator consensus reached
-    if case.votes_for >= required_votes {
-        case.state = CaseState::Approved;
-        case.status = CaseStatus::Frozen;
-        
-        // Execute token freeze via CPI
-        freeze_scam_account(ctx)?;
-        
-        msg!("Validator consensus reached! Scam account frozen");
-    } else if case.votes_for + case.votes_against >= total_validators {
-        // All validators voted
-        case.state = CaseState::Rejected;
-        case.status = CaseStatus::Closed;
-        msg!("All validators voted. Case rejected");
-    }
-
-    Ok(())
-}
-
-fn freeze_scam_account(ctx: Context<VoteWithFreeze>) -> Result<()> {
     msg!("Freezing scam token account...");
     
     let cpi_accounts = FreezeAccount {

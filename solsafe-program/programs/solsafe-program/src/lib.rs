@@ -43,9 +43,7 @@ pub mod solsafe_program {
         instructions::update_validators::handler(ctx, validators)
     }
 
-    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> {
-        sync_validators::handler(ctx, validators)
-    }
+    
 
     pub fn submit_evidence(
         ctx: Context<SubmitEvidence>,
@@ -73,7 +71,5 @@ pub mod solsafe_program {
         instructions::vote::handler_freeze(ctx, approve)
     }
 
-    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> {
-        instructions::sync_validators::handler(ctx, validators)
-    }
+    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> { instructions::sync_validators::handler(ctx, validators) }
 }
