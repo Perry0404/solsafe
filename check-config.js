@@ -1,6 +1,6 @@
 const { Connection, PublicKey } = require('@solana/web3.js');
 
-const PROGRAM_ID = new PublicKey('HMPaEYiuJN2ugMEEZ6uiJ9zjNvPSEYFu6UcX77fFnNQB');
+const PROGRAM_ID = new PublicKey('FfV3AHU6WS7aPz53DnVvWBMEZR46ydGkEtKpLiKfRTrR');
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 async function checkConfig() {

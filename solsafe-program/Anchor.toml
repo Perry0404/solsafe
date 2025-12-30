@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-solsafe_program = "HMPaEYiuJN2ugMEEZ6uiJ9zjNvPSEYFu6UcX77fFnNQB"
+solsafe_program = "FfV3AHU6WS7aPz53DnVvWBMEZR46ydGkEtKpLiKfRTrR"
 
 [registry]
 url = "https://api.apr.dev"
