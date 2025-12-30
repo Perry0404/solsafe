@@ -12,7 +12,6 @@ export default function Dashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
-  const [initializing, setInitializing] = useState(false);
 
   // Form states
   const [caseId, setCaseId] = useState('');
@@ -75,56 +74,6 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Vote error:', err);
       alert('Failed to submit vote: ' + (err.message || 'Unknown error'));
-    }
-  };
-
-  const handleInitialize = async () => {
-    console.log('🔵 Initialize button clicked!');
-    console.log('Program:', program);
-    console.log('PublicKey:', publicKey?.toBase58());
-    console.log('Connected:', connected);
-    
-    if (!publicKey) {
-      alert('⚠️ Wallet not connected!\n\nPlease click the "Select Wallet" button at the top right and connect your wallet first.');
-      return;
-    }
-    
-    setInitializing(true);
-    try {
-      const { PublicKey: PK, SystemProgram } = await import('@solana/web3.js');
-      
-      // Find global_config PDA
-      const [configPda] = PK.findProgramAddressSync(
-        [Buffer.from('global_config')],
-        program.programId
-      );
-
-      console.log('🟢 Initializing program with validator integration...');
-      console.log('Global Config PDA:', configPda.toBase58());
-      console.log('Admin wallet:', publicKey.toBase58());
-
-      const tx = await program.methods
-        .initialize(5, 2) // quorum: 5 validators, min_jurors: 2 (2/3 consensus)
-        .accounts({
-          globalConfig: configPda,
-          admin: publicKey,
-          systemProgram: SystemProgram.programId,
-        })
-        .rpc();
-
-      console.log('✅ Transaction successful:', tx);
-      alert(`✅ Program initialized successfully with 5 validators!\n\nTransaction: ${tx}\n\nYou can now submit cases. Validators can vote on cases!`);
-      await fetchCases();
-    } catch (err) {
-      console.error('🔴 Initialize error:', err);
-      if (err.message && err.message.includes('already in use')) {
-        alert('✅ Program is already initialized!\n\nYou can now submit cases.');
-        await fetchCases();
-      } else {
-        alert('❌ Failed to initialize:\n\n' + (err.message || JSON.stringify(err)));
-      }
-    } finally {
-      setInitializing(false);
     }
   };
 
@@ -222,35 +171,6 @@ export default function Dashboard() {
                   <p style={{ marginBottom: '20px', color: '#aaa' }}>
                     Report a scam by submitting evidence to the blockchain. Each case requires a unique ID.
                   </p>
-                  
-                  {cases.length === 0 && (
-                    <div style={{ 
-                      background: 'rgba(138, 43, 226, 0.1)', 
-                      border: '1px solid rgba(138, 43, 226, 0.3)',
-                      padding: '15px',
-                      borderRadius: '8px',
-                      marginBottom: '20px'
-                    }}>
-                      <p style={{ margin: '0 0 10px 0' }}>
-                        ⚠️ <strong>First time setup:</strong> The program needs to be initialized before submitting cases.
-                      </p>
-                      <button
-                        onClick={handleInitialize}
-                        disabled={initializing}
-                        style={{
-                          padding: '10px 20px',
-                          background: '#8a2be2',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: initializing ? 'not-allowed' : 'pointer',
-                          opacity: initializing ? 0.6 : 1
-                        }}
-                      >
-                        {initializing ? 'Initializing...' : '🚀 Initialize Program (One-time)'}
-                      </button>
-                    </div>
-                  )}
                   
                   <form onSubmit={handleSubmitCase} className="case-form">
                     <div className="form-group">
@@ -392,35 +312,6 @@ export default function Dashboard() {
                   <p style={{ marginBottom: '20px', color: '#aaa' }}>
                     Report a scam by submitting evidence to the blockchain. Each case requires a unique ID.
                   </p>
-                  
-                  {cases.length === 0 && (
-                    <div style={{ 
-                      background: 'rgba(138, 43, 226, 0.1)', 
-                      border: '1px solid rgba(138, 43, 226, 0.3)',
-                      padding: '15px',
-                      borderRadius: '8px',
-                      marginBottom: '20px'
-                    }}>
-                      <p style={{ margin: '0 0 10px 0' }}>
-                        ?? <strong>First time setup:</strong> The program needs to be initialized before submitting cases.
-                      </p>
-                      <button
-                        onClick={handleInitialize}
-                        disabled={initializing}
-                        style={{
-                          padding: '10px 20px',
-                          background: '#8a2be2',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: initializing ? 'not-allowed' : 'pointer',
-                          opacity: initializing ? 0.6 : 1
-                        }}
-                      >
-                        {initializing ? 'Initializing...' : '?? Initialize Program (One-time)'}
-                      </button>
-                    </div>
-                  )}
                   
                   <form onSubmit={handleSubmitCase} className="case-form">
                     <div className="form-group">
