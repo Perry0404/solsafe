@@ -52,7 +52,7 @@ export default function App() {
                 <nav className="navbar">
                   <div className="logo">
                     <img
-                      src="%PUBLIC_URL%/logoo.png"
+                      src="/logoo.png"
                       alt="solsafe logo"
                       className="logo-img"
                     />
@@ -128,4 +128,5 @@ export default function App() {
     </ConnectionProvider>
   );
 }
+
 
