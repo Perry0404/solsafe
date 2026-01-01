@@ -19,22 +19,23 @@ export default function Dashboard() {
   const [evidenceUrl, setEvidenceUrl] = useState('');
   const [selectedCaseId, setSelectedCaseId] = useState('');
 
-  // Auto-generate next case ID
+  // Auto-fetch cases when wallet connects
   useEffect(() => {
-    if (connected && cases.length === 0) {
+    if (connected && program) {
+      console.log('🔄 Fetching cases on wallet connect...');
       fetchCases();
     }
-  }, [connected]);
+  }, [connected, program, fetchCases]);
 
+  // Auto-generate next case ID
   useEffect(() => {
     if (cases.length > 0 && !caseId) {
-      // Get the highest case ID and suggest the next one
       const maxId = Math.max(...cases.map(c => Number(c.account.caseId) || 0));
       setCaseId(String(maxId + 1));
     } else if (cases.length === 0 && !caseId) {
       setCaseId('1');
     }
-  }, [cases]);
+  }, [cases, caseId]);
 
   const handleSubmitCase = async (e) => {
     e.preventDefault();
@@ -303,73 +304,6 @@ export default function Dashboard() {
                   ) : (
                     <p>Connect your wallet to view your profile.</p>
                   )}
-                </div>
-              )}
-
-              {activeTab === 'submit' && publicKey && (
-                <div>
-                  <h2>Submit New Case</h2>
-                  <p style={{ marginBottom: '20px', color: '#aaa' }}>
-                    Report a scam by submitting evidence to the blockchain. Each case requires a unique ID.
-                  </p>
-                  
-                  <form onSubmit={handleSubmitCase} className="case-form">
-                    <div className="form-group">
-                      <label>Case ID: <span style={{ color: '#8a2be2' }}>*</span></label>
-                      <input
-                        type="number"
-                        value={caseId}
-                        onChange={(e) => setCaseId(e.target.value)}
-                        placeholder="Auto-generated next available ID"
-                        required
-                        disabled={submitting}
-                      />
-                      <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
-                        This ID is auto-generated. Use this number: <strong style={{ color: '#8a2be2' }}>{caseId || '1'}</strong>
-                      </small>
-                    </div>
-                    <div className="form-group">
-                      <label>Scam Address: <span style={{ color: '#8a2be2' }}>*</span></label>
-                      <input
-                        type="text"
-                        value={scamAddress}
-                        onChange={(e) => setScamAddress(e.target.value)}
-                        placeholder="Solana public key of the scammer's wallet"
-                        required
-                        disabled={submitting}
-                      />
-                      <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
-                        Example: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
-                      </small>
-                    </div>
-                    <div className="form-group">
-                      <label>Evidence URL: <span style={{ color: '#8a2be2' }}>*</span></label>
-                      <input
-                        type="text"
-                        value={evidenceUrl}
-                        onChange={(e) => setEvidenceUrl(e.target.value)}
-                        placeholder="Link to evidence (IPFS, screenshot, etc.)"
-                        required
-                        disabled={submitting}
-                      />
-                      <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
-                        Example: ipfs://QmXyz... or https://example.com/evidence.jpg
-                      </small>
-                    </div>
-                    {submitError && (
-                      <div className="error-message">{submitError}</div>
-                    )}
-                    {submitSuccess && (
-                      <div className="success-message">{submitSuccess}</div>
-                    )}
-                    <button 
-                      type="submit" 
-                      className="cta-button"
-                      disabled={submitting}
-                    >
-                      {submitting ? 'Submitting...' : 'Submit Case'}
-                    </button>
-                  </form>
                 </div>
               )}
 

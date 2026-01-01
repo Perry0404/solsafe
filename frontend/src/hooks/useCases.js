@@ -1,5 +1,5 @@
 ﻿/* eslint-disable no-undef */
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
@@ -53,28 +53,30 @@ export function useCases() {
     }
   }, [connection, anchorWallet]);
 
-  // Fetch all cases from blockchain
-  const fetchCases = async () => {
+  // Fetch all cases from blockchain - wrapped in useCallback to prevent infinite loops
+  const fetchCases = useCallback(async () => {
     if (!program) {
-      console.warn('Program not initialized');
+      console.warn('⚠️ Program not initialized, skipping fetchCases');
       return [];
     }
 
     try {
+      console.log('🔄 Fetching all cases from blockchain...');
       setLoading(true);
       setError(null);
 
-      const cases = await program.account.caseAccount.all();
-      setCases(cases);
-      return cases;
+      const fetchedCases = await program.account.caseAccount.all();
+      console.log(`✅ Found ${fetchedCases.length} cases:`, fetchedCases);
+      setCases(fetchedCases);
+      return fetchedCases;
     } catch (err) {
-      console.error('Error fetching cases:', err);
+      console.error('❌ Error fetching cases:', err);
       setError('Failed to fetch cases from blockchain');
       return [];
     } finally {
       setLoading(false);
     }
-  };
+  }, [program]);
 
   // Fetch specific case by ID
   const fetchCaseById = async (caseId) => {
