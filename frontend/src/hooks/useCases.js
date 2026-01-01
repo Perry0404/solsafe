@@ -105,9 +105,11 @@ export function useCases() {
     evidenceUrl,
     scamAddress
   ) => {
-    if (!program || !publicKey) {
-      throw new Error('Wallet not connected');
+    if (!program || !anchorWallet || !anchorWallet.publicKey) {
+      throw new Error('Wallet not connected. Please connect your wallet and try again.');
     }
+    
+    const publicKey = anchorWallet.publicKey;
 
     try {
       const scamPubkey = new PublicKey(scamAddress);
@@ -149,9 +151,11 @@ export function useCases() {
 
   // Vote on a case
   const voteOnCase = async (caseId, approve) => {
-    if (!program || !publicKey) {
-      throw new Error('Wallet not connected');
+    if (!program || !anchorWallet || !anchorWallet.publicKey) {
+      throw new Error('Wallet not connected. Please connect your wallet and try again.');
     }
+    
+    const publicKey = anchorWallet.publicKey;
 
     try {
       const [casePda] = PublicKey.findProgramAddressSync(
@@ -185,9 +189,11 @@ export function useCases() {
 
   // Request jurors for a case
   const requestJurors = async (caseId, vrfAccount) => {
-    if (!program || !publicKey) {
-      throw new Error('Wallet not connected');
+    if (!program || !anchorWallet || !anchorWallet.publicKey) {
+      throw new Error('Wallet not connected. Please connect your wallet and try again.');
     }
+    
+    const publicKey = anchorWallet.publicKey;
 
     try {
       const [casePda] = PublicKey.findProgramAddressSync(
