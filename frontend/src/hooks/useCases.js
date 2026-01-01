@@ -1,4 +1,4 @@
-﻿/* eslint-disable no-undef */
+/* eslint-disable no-undef */
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useConnection, useWallet, useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
@@ -21,7 +21,7 @@ export function useCases() {
 
   // Create program instance using anchorWallet
   const program = useMemo(() => {
-    console.log('🔍 useCases Debug:');
+    console.log('?? useCases Debug:');
     console.log('  - wallet.publicKey:', wallet?.publicKey?.toBase58());
     console.log('  - wallet.connected:', wallet?.connected);
     console.log('  - anchorWallet:', anchorWallet);
@@ -29,7 +29,7 @@ export function useCases() {
 
     // Use anchorWallet which is specifically designed for Anchor
     if (!anchorWallet) {
-      console.warn('⚠️ AnchorWallet not ready yet');
+      console.warn('?? AnchorWallet not ready yet');
       return null;
     }
 
@@ -44,11 +44,11 @@ export function useCases() {
       );
 
       const prog = new Program(IDL, PROGRAM_ID, provider);
-      console.log('✅ Program created successfully!');
+      console.log('? Program created successfully!');
       console.log('   Program ID:', prog.programId.toBase58());
       return prog;
     } catch (err) {
-      console.error('❌ Error creating program:', err);
+      console.error('? Error creating program:', err);
       return null;
     }
   }, [connection, anchorWallet]);
@@ -56,21 +56,21 @@ export function useCases() {
   // Fetch all cases from blockchain - wrapped in useCallback to prevent infinite loops
   const fetchCases = useCallback(async () => {
     if (!program) {
-      console.warn('⚠️ Program not initialized, skipping fetchCases');
+      console.warn('?? Program not initialized, skipping fetchCases');
       return [];
     }
 
     try {
-      console.log('🔄 Fetching all cases from blockchain...');
+      console.log('?? Fetching all cases from blockchain...');
       setLoading(true);
       setError(null);
 
       const fetchedCases = await program.account.caseAccount.all();
-      console.log(`✅ Found ${fetchedCases.length} cases:`, fetchedCases);
+      console.log(`? Found ${fetchedCases.length} cases:`, fetchedCases);
       setCases(fetchedCases);
       return fetchedCases;
     } catch (err) {
-      console.error('❌ Error fetching cases:', err);
+      console.error('? Error fetching cases:', err);
       setError('Failed to fetch cases from blockchain');
       return [];
     } finally {
@@ -83,8 +83,11 @@ export function useCases() {
     if (!program) return null;
 
     try {
+      const caseIdBuffer = Buffer.alloc(8);
+      caseIdBuffer.writeBigUInt64LE(BigInt(caseId));
+
       const [casePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('case'), Buffer.from(caseId.toString().padStart(8, '0'))],
+        [Buffer.from('case'), caseIdBuffer],
         PROGRAM_ID
       );
 
@@ -152,7 +155,7 @@ export function useCases() {
 
     try {
       const [casePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('case'), Buffer.from(caseId.toString().padStart(8, '0'))],
+        [Buffer.from('case'), caseIdBuffer],
         PROGRAM_ID
       );
 
@@ -188,7 +191,7 @@ export function useCases() {
 
     try {
       const [casePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('case'), Buffer.from(caseId.toString().padStart(8, '0'))],
+        [Buffer.from('case'), caseIdBuffer],
         PROGRAM_ID
       );
 
@@ -217,7 +220,7 @@ export function useCases() {
 
     try {
       const [casePda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('case'), Buffer.from(caseId.toString().padStart(8, '0'))],
+        [Buffer.from('case'), caseIdBuffer],
         PROGRAM_ID
       );
 
@@ -289,3 +292,7 @@ export function formatCaseState(state) {
   if (state.executed) return 'Executed';
   return 'Unknown';
 }
+
+
+
+
