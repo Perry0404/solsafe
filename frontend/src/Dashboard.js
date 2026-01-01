@@ -7,7 +7,7 @@ import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
 
 export default function Dashboard() {
   const { publicKey, connected } = useWallet();
-  const { cases, loading, error, fetchCases, submitCase, voteOnCase, program } = useCases();
+  const { cases, loading, error, fetchCases, submitCase, submitCaseWithPrivacy, voteOnCase, voteWithPrivacy, program } = useCases();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -18,6 +18,10 @@ export default function Dashboard() {
   const [scamAddress, setScamAddress] = useState('');
   const [evidenceUrl, setEvidenceUrl] = useState('');
   const [selectedCaseId, setSelectedCaseId] = useState('');
+  
+  // ZK Privacy toggles
+  const [usePrivacySubmit, setUsePrivacySubmit] = useState(false);
+  const [usePrivacyVote, setUsePrivacyVote] = useState(false);
 
   // Auto-fetch cases when wallet connects
   useEffect(() => {
@@ -49,8 +53,11 @@ export default function Dashboard() {
         throw new Error('Case ID must be a number');
       }
 
-      const tx = await submitCase(id, evidenceUrl, scamAddress);
-      setSubmitSuccess(`Case submitted successfully! Transaction: ${tx}`);
+      const submitFn = usePrivacySubmit ? submitCaseWithPrivacy : submitCase;
+      const tx = await submitFn(id, evidenceUrl, scamAddress, usePrivacySubmit);
+      
+      const privacyMsg = usePrivacySubmit ? ' 🔐 (Evidence encrypted with ZK proof)' : '';
+      setSubmitSuccess(`Case submitted successfully!${privacyMsg} Transaction: ${tx}`);
       
       // Reset form
       setCaseId('');
@@ -69,8 +76,11 @@ export default function Dashboard() {
 
   const handleVote = async (caseId, approve) => {
     try {
-      const tx = await voteOnCase(caseId, approve);
-      alert(`Vote submitted successfully! Transaction: ${tx}`);
+      const voteFn = usePrivacyVote ? voteWithPrivacy : voteOnCase;
+      const tx = await voteFn(caseId, approve, usePrivacyVote);
+      
+      const privacyMsg = usePrivacyVote ? ' 🔐 (Private vote with ZK commitment)' : '';
+      alert(`Vote submitted successfully!${privacyMsg} Transaction: ${tx}`);
       await fetchCases();
     } catch (err) {
       console.error('Vote error:', err);
@@ -216,6 +226,30 @@ export default function Dashboard() {
                         Example: ipfs://QmXyz... or https://example.com/evidence.jpg
                       </small>
                     </div>
+                    
+                    {/* ZK Privacy Toggle */}
+                    <div className="form-group" style={{ 
+                      padding: '15px', 
+                      background: 'linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(236, 72, 153, 0.1))',
+                      borderRadius: '8px',
+                      border: '2px solid #8a2be2'
+                    }}>
+                      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={usePrivacySubmit}
+                          onChange={(e) => setUsePrivacySubmit(e.target.checked)}
+                          style={{ marginRight: '10px', width: '18px', height: '18px', cursor: 'pointer' }}
+                        />
+                        <span style={{ fontWeight: 'bold', color: '#8a2be2' }}>
+                          🔐 Enable ZK Privacy (Encrypt Evidence)
+                        </span>
+                      </label>
+                      <small style={{ color: '#666', display: 'block', marginTop: '8px', marginLeft: '28px' }}>
+                        Uses Zero-Knowledge proofs to hash evidence. Only the hash is stored on-chain, protecting sensitive information.
+                      </small>
+                    </div>
+                    
                     {submitError && (
                       <div className="error-message">{submitError}</div>
                     )}
@@ -271,6 +305,31 @@ export default function Dashboard() {
                       placeholder="Enter case ID to vote on"
                     />
                   </div>
+                  
+                  {/* ZK Privacy Toggle for Voting */}
+                  <div className="form-group" style={{ 
+                    padding: '15px', 
+                    background: 'linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(236, 72, 153, 0.1))',
+                    borderRadius: '8px',
+                    border: '2px solid #8a2be2',
+                    marginBottom: '20px'
+                  }}>
+                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={usePrivacyVote}
+                        onChange={(e) => setUsePrivacyVote(e.target.checked)}
+                        style={{ marginRight: '10px', width: '18px', height: '18px', cursor: 'pointer' }}
+                      />
+                      <span style={{ fontWeight: 'bold', color: '#8a2be2' }}>
+                        🔐 Enable Private Voting (ZK Commitment)
+                      </span>
+                    </label>
+                    <small style={{ color: '#666', display: 'block', marginTop: '8px', marginLeft: '28px' }}>
+                      Creates a zero-knowledge commitment to your vote. Your vote is stored locally and can be revealed later while preventing double-voting.
+                    </small>
+                  </div>
+                  
                   <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                     <button
                       className="cta-button"
