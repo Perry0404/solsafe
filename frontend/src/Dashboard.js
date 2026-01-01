@@ -290,7 +290,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
-=======
+
               {activeTab === 'dashboard' && (
                 <div>
                   <h2>Profile</h2>
@@ -364,7 +364,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
->>>>>>> dc8ec70c1935ea88e501c0e39a01f508ae701065
             </div>
           </div>
         </section>
