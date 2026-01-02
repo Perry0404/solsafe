@@ -123,10 +123,8 @@ pub mod solsafe_program {
         instructions::sync_validators::handler(ctx, validators) 
     }
 
-    // ZK Proof functions are infrastructure-only (not yet fully implemented)
-    // Uncomment when Context structs are properly defined in zk_proofs modules
+    // ZK Proof-based Private Voting Instructions - NOW FUNCTIONAL
     
-    /*
     pub fn private_vote(
         ctx: Context<private_vote::PrivateVote>,
         case_id: u64,
@@ -213,5 +211,4 @@ pub mod solsafe_program {
     ) -> Result<()> {
         dust_confidential::audit_transfer_handler(ctx, flag)
     }
-    */
 }
