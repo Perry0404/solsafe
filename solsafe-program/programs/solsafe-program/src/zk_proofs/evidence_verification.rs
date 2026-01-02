@@ -104,13 +104,12 @@ pub fn initialize_private_evidence_handler(
     require!(encrypted_evidence.len() <= 1024, crate::ErrorCode::EvidenceTooLarge);
     require!(threshold > 0, crate::ErrorCode::InvalidThreshold);
     
-    *evidence = EvidenceCommitment::new(
-        case_id,
-        evidence_hash,
-        encrypted_evidence,
-        threshold,
-        ctx.bumps.evidence_commitment,
-    );
+    evidence.case_id = case_id;
+    evidence.evidence_hash = evidence_hash;
+    evidence.encrypted_evidence = encrypted_evidence;
+    evidence.threshold = threshold;
+    evidence.verified_shares = 0;
+    evidence.bump = ctx.bumps.evidence_commitment;
     
     msg!("Private evidence initialized for case {}", case_id);
     Ok(())

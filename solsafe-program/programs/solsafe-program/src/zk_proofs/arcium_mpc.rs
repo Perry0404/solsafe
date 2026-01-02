@@ -154,7 +154,7 @@ pub fn initialize_mpc_handler(
     require!(threshold > 0 && threshold <= total_jurors, crate::ErrorCode::InvalidThreshold);
     require!(total_jurors <= 20, crate::ErrorCode::TooManyJurors);
     
-    *mpc_config = MpcConfig::new(
+    let clock = Clock::get()?;`r`n    mpc_config.case_id = case_id;`r`n    mpc_config.threshold = threshold;`r`n    mpc_config.total_jurors = total_jurors;`r`n    mpc_config.current_shares = 0;`r`n    mpc_config.computation_id = MpcConfig::generate_computation_id(case_id, clock.unix_timestamp);`r`n    mpc_config.state = MpcState::Initialized;`r`n    mpc_config.bump = ctx.bumps.mpc_config; //
         case_id,
         threshold,
         total_jurors,
