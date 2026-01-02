@@ -7,7 +7,7 @@ export default function Whitepaper() {
     <div className="whitepaper-wrapper">
       <div className="whitepaper-container">
         <nav className="whitepaper-nav">
-          <Link to="/" className="back-btn">? Back to Home</Link>
+          <Link to="/" className="back-btn">← Back to Home</Link>
         </nav>
 
         <h1 className="whitepaper-title">SolSafe Whitepaper</h1>
@@ -37,22 +37,22 @@ export default function Whitepaper() {
           
           <div className="solution-grid">
             <div className="solution-item">
-              <h3>??? Private Voting</h3>
+              <h3>🗳️ Private Voting</h3>
               <p>ZK-SNARKs with 481-constraint circuits prove vote validity without revealing choices</p>
             </div>
 
             <div className="solution-item">
-              <h3>?? MPC Evidence</h3>
+              <h3>🔒 MPC Evidence</h3>
               <p>Threshold encryption splits sensitive evidence across multiple parties</p>
             </div>
 
             <div className="solution-item">
-              <h3>?? Confidential Transfers</h3>
+              <h3>💸 Confidential Transfers</h3>
               <p>Dust Protocol hides transaction amounts while maintaining auditability</p>
             </div>
 
             <div className="solution-item">
-              <h3>?? Random Selection</h3>
+              <h3>🎲 Random Selection</h3>
               <p>Switchboard VRF ensures unbiased, anonymous juror selection</p>
             </div>
           </div>
@@ -115,10 +115,10 @@ export default function Whitepaper() {
         <section className="section">
           <h2>Security</h2>
           <ul>
-            <li>? Trusted setup with 2+ contributions</li>
-            <li>? 481 verified circuit constraints</li>
-            <li>? 192-byte proofs, 128-bit security</li>
-            <li>?? Smart contract audits planned</li>
+            <li>✅ Trusted setup with 2+ contributions</li>
+            <li>✅ 481 verified circuit constraints</li>
+            <li>✅ 192-byte proofs, 128-bit security</li>
+            <li>🔜 Smart contract audits planned</li>
           </ul>
         </section>
 
@@ -138,7 +138,7 @@ export default function Whitepaper() {
         </section>
 
         <footer className="whitepaper-footer">
-          <p>� 2026 SolSafe Protocol</p>
+          <p>© 2026 SolSafe Protocol</p>
         </footer>
       </div>
     </div>
