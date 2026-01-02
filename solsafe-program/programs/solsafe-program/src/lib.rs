@@ -107,7 +107,10 @@ pub mod solsafe_program {
         instructions::vote::handler_freeze(ctx, approve)
     }
 
-<<<<<<< HEAD
+    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> { 
+        instructions::sync_validators::handler(ctx, validators) 
+    }
+
     // ZK Proof-based Private Voting Instructions
     
     pub fn private_vote(
@@ -202,7 +205,4 @@ pub mod solsafe_program {
     ) -> Result<()> {
         dust_confidential::audit_transfer_handler(ctx, flag)
     }
-=======
-    pub fn sync_validators(ctx: Context<SyncValidators>, validators: Vec<Pubkey>) -> Result<()> { instructions::sync_validators::handler(ctx, validators) }
->>>>>>> 0b77a81872613d4a9ee8fe3168bdae4fc0bd68f9
 }
