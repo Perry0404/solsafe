@@ -7,6 +7,7 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 import "./App.css";
 import Dashboard from "./Dashboard";
+import Whitepaper from "./components/Whitepaper";
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
