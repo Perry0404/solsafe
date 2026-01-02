@@ -4,6 +4,7 @@ pub mod evidence_verification;
 pub mod light_compression;
 pub mod arcium_mpc;
 pub mod dust_confidential;
+pub mod groth16_verifier;  // NEW: Groth16 ZK-SNARK verifier
 
 use anchor_lang::prelude::*;
 
@@ -13,6 +14,7 @@ pub use evidence_verification::*;
 pub use light_compression::*;
 pub use arcium_mpc::*;
 pub use dust_confidential::*;
+pub use groth16_verifier::*;
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone)]
 pub struct ZkProof {
@@ -41,8 +43,8 @@ impl ZkProof {
     }
 
     fn verify_vote_commitment(&self) -> Result<bool> {
-        // Verify that the proof data is valid format (at least 32 bytes for nullifier)
-        require!(self.proof_data.len() >= 32, crate::ErrorCode::InvalidZkProof);
+        // Use Groth16 ZK-SNARK verification for true zero-knowledge
+        require!(self.proof_data.len() >= 192, crate::ErrorCode::InvalidZkProof); // Groth16 proof size
         require!(self.public_inputs.len() >= 40, crate::ErrorCode::InvalidZkProof); // case_id (8) + commitment (32)
         
         // Extract case_id from public inputs
@@ -57,11 +59,18 @@ impl ZkProof {
         // Verify commitment structure (non-zero, valid hash format)
         require!(commitment != [0u8; 32], crate::ErrorCode::InvalidZkProof);
         
-        // Compute nullifier from case_id and commitment
+        // Deserialize and verify Groth16 proof
+        let groth16_proof = VoteCommitmentProof::from_bytes(&self.proof_data)?;
+        
+        // For now, use hash-based verification until verifying key is set up
+        // TODO: Replace with actual Groth16 verification once circuit is deployed
+        // let vk = VoteCommitmentVerifyingKey::default_embedded()?;
+        // let valid = groth16_proof.verify(&vk.vk, &commitment, case_id)?;
+        
+        // Fallback to hash-based verification
         use solana_program::hash::hashv;
         let computed_nullifier = hashv(&[&case_id.to_le_bytes(), &commitment]);
         
-        // Verify nullifier matches (stored in proof_data)
         if self.proof_data.len() >= 32 {
             let provided_nullifier: [u8; 32] = self.proof_data[0..32].try_into()
                 .map_err(|_| crate::ErrorCode::InvalidZkProof)?;
@@ -71,7 +80,7 @@ impl ZkProof {
             );
         }
         
-        msg!("Vote commitment verified successfully");
+        msg!("Vote commitment verified (hash-based until Groth16 circuit deployed)");
         Ok(true)
     }
 
