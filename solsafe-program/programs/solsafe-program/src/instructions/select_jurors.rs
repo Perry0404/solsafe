@@ -40,11 +40,18 @@ pub fn handler(ctx: Context<SelectJurors>) -> Result<()> {
     // Store all candidates for verification
     case.juror_candidates = config.validator_list.clone();
 
-    // Select jurors using Switchboard's true randomness
+    // Select jurors using Switchboard's true randomness with duplicate prevention
     let mut selected = Vec::with_capacity(num_jurors);
-    for i in 0..num_jurors {
-        // Use different bytes from the randomness for each juror
-        let offset = i * 4;
+    let mut selected_indices = Vec::with_capacity(num_jurors);
+    let mut attempt = 0u32;
+    
+    while selected.len() < num_jurors {
+        require!(attempt < 1000, ErrorCode::JurorSelectionFailed);
+        
+        // Use checked arithmetic to prevent overflow
+        let offset = attempt.checked_mul(4)
+            .ok_or(ErrorCode::ArithmeticOverflow)? as usize;
+        
         let idx = u32::from_le_bytes([
             randomness[offset % 32],
             randomness[(offset + 1) % 32],
@@ -52,7 +59,14 @@ pub fn handler(ctx: Context<SelectJurors>) -> Result<()> {
             randomness[(offset + 3) % 32]
         ]) as usize % validator_count;
         
-        selected.push(config.validator_list[idx]);
+        // Only add if not already selected (prevent duplicates)
+        if !selected_indices.contains(&idx) {
+            selected_indices.push(idx);
+            selected.push(config.validator_list[idx]);
+        }
+        
+        attempt = attempt.checked_add(1)
+            .ok_or(ErrorCode::ArithmeticOverflow)?;
     }
     
     case.jurors = selected;
