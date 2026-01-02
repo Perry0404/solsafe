@@ -4,11 +4,12 @@ declare_id!("FfV3AHU6WS7aPz53DnVvWBMEZR46ydGkEtKpLiKfRTrR");
 
 pub mod state;
 pub mod instructions;
-pub mod zk_proofs;
+// pub mod zk_proofs;  // Infrastructure-only, not yet fully implemented
 
 use state::{GlobalConfig, CaseAccount, CaseStatus, CaseState};
 use instructions::*;
-use zk_proofs::*;
+// use zk_proofs::*;  // Uncomment when ZK modules are ready
+
 #[error_code]
 pub enum ErrorCode {
     #[msg("Unauthorized")]
