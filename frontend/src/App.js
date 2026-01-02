@@ -122,6 +122,9 @@ export default function App() {
 
         {/* ✅ Dashboard page */}
         <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* ✅ Whitepaper page */}
+        <Route path="/whitepaper" element={<Whitepaper />} />
       </Routes>
           </Router>
         </WalletModalProvider>
