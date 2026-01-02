@@ -77,6 +77,11 @@ export default function App() {
                         Dashboard
                       </Link>
                     </li>
+                    <li>
+                      <Link to="/whitepaper" onClick={() => setMenuOpen(false)}>
+                        Whitepaper
+                      </Link>
+                    </li>
                   </ul>
 
                   {/* Burger Button */}
@@ -113,7 +118,7 @@ export default function App() {
               <footer>
                 <p>© 2025 SOLSAFE. All rights reserved.</p>
                 <p>
-                  <a href="https://x.com/Solsafe_io">X</a> | <a href="https://t.me/">Telegram</a> | <a href="#whitepaper">Whitepaper</a>
+                  <a href="https://x.com/Solsafe_io">X</a> | <a href="https://t.me/">Telegram</a> | <Link to="/whitepaper">Whitepaper</Link>
                 </p>
               </footer>
             </div>
