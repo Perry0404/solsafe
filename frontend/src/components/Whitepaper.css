@@ -1,51 +1,360 @@
-/* Whitepaper Wrapper */
+/* Reset & Mobile-First Base */
+* {
+  box-sizing: border-box;
+}
+
 .whitepaper-wrapper {
   width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
   padding: 0;
   margin: 0;
+  overflow-x: hidden;
 }
 
-/* Container */
 .whitepaper-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 15px;
+  padding: 20px;
   color: #e0e0e0;
+  width: 100%;
 }
 
-/* Navigation */
+/* Navigation - Mobile Optimized */
 .whitepaper-nav {
-  padding: 20px 0;
+  padding: 15px 0 25px 0;
+  margin-bottom: 10px;
 }
 
 .back-btn {
   display: inline-block;
-  padding: 10px 20px;
-  background: rgba(157, 78, 221, 0.1);
+  padding: 12px 24px;
+  background: rgba(157, 78, 221, 0.15);
   border: 2px solid #9d4edd;
   border-radius: 8px;
   color: #9d4edd;
   text-decoration: none;
   font-weight: 600;
+  font-size: 1rem;
   transition: all 0.3s ease;
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(157, 78, 221, 0.3);
 }
 
-.back-btn:hover {
+.back-btn:hover,
+.back-btn:active {
   background: #9d4edd;
   color: white;
-  transform: translateX(-5px);
 }
 
-/* Title */
+/* Typography - Mobile First */
 .whitepaper-title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
   background: linear-gradient(135deg, #9d4edd, #c77dff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 30px 0 10px 0;
+  margin: 20px 0 15px 0;
   text-align: center;
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 1rem;
+  color: #b0b0b0;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  padding: 0 10px;
+}
+
+/* Section Styling - Mobile First */
+.section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(157, 78, 221, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.section h2 {
+  color: #c77dff;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #9d4edd;
+  padding-bottom: 10px;
+  word-wrap: break-word;
+}
+
+.section p {
+  line-height: 1.8;
+  color: #d0d0d0;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+.section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.section ul li {
+  padding: 12px 0 12px 30px;
+  position: relative;
+  color: #d0d0d0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.section ul li:before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #9d4edd;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Solution Grid - Mobile First (Stacked) */
+.solution-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.solution-item {
+  background: rgba(157, 78, 221, 0.1);
+  border: 1px solid #9d4edd;
+  border-radius: 10px;
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.solution-item:active {
+  transform: scale(0.98);
+}
+
+.solution-item h3 {
+  color: #c77dff;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+}
+
+.solution-item p {
+  color: #b0b0b0;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Tokenomics - Mobile First (2 columns on mobile) */
+.tokenomics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.token-item {
+  background: linear-gradient(135deg, rgba(157, 78, 221, 0.2), rgba(199, 125, 255, 0.1));
+  border: 2px solid #9d4edd;
+  border-radius: 12px;
+  padding: 20px 15px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.token-item:active {
+  transform: scale(0.95);
+}
+
+.percentage {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #c77dff;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #e0e0e0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+}
+
+/* Technology Grid - Mobile First */
+.tech-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.tech-item {
+  background: rgba(199, 125, 255, 0.05);
+  border-left: 4px solid #9d4edd;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.tech-item strong {
+  color: #c77dff;
+  margin-right: 8px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Contact Section */
+.contact-section {
+  text-align: center;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 25px;
+  align-items: stretch;
+  padding: 0 20px;
+}
+
+.contact-btn {
+  display: block;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #9d4edd, #c77dff);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  min-height: 50px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(157, 78, 221, 0.3);
+}
+
+.contact-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
+}
+
+/* Footer */
+.whitepaper-footer {
+  text-align: center;
+  padding: 30px 20px;
+  margin-top: 40px;
+  border-top: 1px solid rgba(157, 78, 221, 0.3);
+  color: #808080;
+  font-size: 0.9rem;
+}
+
+/* Tablet (600px+) */
+@media (min-width: 600px) {
+  .whitepaper-container {
+    padding: 30px;
+  }
+
+  .whitepaper-title {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .section {
+    padding: 25px;
+  }
+
+  .section h2 {
+    font-size: 1.8rem;
+  }
+
+  .solution-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .tokenomics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .tech-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .contact-links {
+    flex-direction: row;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .contact-btn {
+    width: auto;
+    min-width: 160px;
+  }
+}
+
+/* Desktop (900px+) */
+@media (min-width: 900px) {
+  .whitepaper-container {
+    padding: 50px;
+  }
+
+  .whitepaper-title {
+    font-size: 3.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+  }
+
+  .section {
+    padding: 35px;
+  }
+
+  .tokenomics-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .back-btn:hover {
+    transform: translateX(-5px);
+  }
+
+  .solution-item:hover {
+    transform: translateY(-5px);
+    background: rgba(157, 78, 221, 0.15);
+  }
+
+  .token-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(157, 78, 221, 0.3);
+  }
+
+  .contact-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(157, 78, 221, 0.4);
+  }
+}
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  .solution-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .whitepaper-title {
+    font-size: 4rem;
+  }
 }

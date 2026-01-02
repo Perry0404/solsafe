@@ -1,14 +1,14 @@
-﻿import React from 'react';
-import { Link } from 'react-router-dom';
-import './Whitepaper.css';
+﻿import React from "react";
+import { Link } from "react-router-dom";
+import "./Whitepaper.css";
 
 export default function Whitepaper() {
   return (
     <div className="whitepaper-wrapper">
       <div className="whitepaper-container">
-        <div className="whitepaper-nav">
-          <Link to="/" className="back-btn">← Home</Link>
-        </div>
+        <nav className="whitepaper-nav">
+          <Link to="/" className="back-btn">← Back to Home</Link>
+        </nav>
 
         <h1 className="whitepaper-title">SolSafe Whitepaper</h1>
         <p className="subtitle">Decentralized Justice with Zero-Knowledge Privacy</p>
