@@ -111,8 +111,10 @@ pub mod solsafe_program {
         instructions::sync_validators::handler(ctx, validators) 
     }
 
-    // ZK Proof-based Private Voting Instructions
+    // ZK Proof functions are infrastructure-only (not yet fully implemented)
+    // Uncomment when Context structs are properly defined in zk_proofs modules
     
+    /*
     pub fn private_vote(
         ctx: Context<private_vote::PrivateVote>,
         case_id: u64,
@@ -131,8 +133,6 @@ pub mod solsafe_program {
         private_vote::reveal_vote_handler(ctx, vote, salt)
     }
 
-    // Private Evidence with MPC
-    
     pub fn initialize_private_evidence(
         ctx: Context<evidence_verification::InitializePrivateEvidence>,
         case_id: u64,
@@ -152,8 +152,6 @@ pub mod solsafe_program {
         evidence_verification::verify_evidence_share_handler(ctx, share_commitment)
     }
 
-    // Arcium MPC Instructions
-    
     pub fn initialize_mpc(
         ctx: Context<arcium_mpc::InitializeMpc>,
         case_id: u64,
@@ -179,8 +177,6 @@ pub mod solsafe_program {
         arcium_mpc::submit_partial_decryption_handler(ctx, decryption_share, proof)
     }
 
-    // Dust Protocol Confidential Transfers
-    
     pub fn initiate_confidential_transfer(
         ctx: Context<dust_confidential::InitiateConfidentialTransfer>,
         transfer_id: u64,
@@ -205,4 +201,5 @@ pub mod solsafe_program {
     ) -> Result<()> {
         dust_confidential::audit_transfer_handler(ctx, flag)
     }
+    */
 }
