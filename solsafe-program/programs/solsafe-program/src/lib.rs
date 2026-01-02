@@ -65,6 +65,17 @@ pub enum ErrorCode {
     InvalidComplianceProof,
     #[msg("Transfer not pending")]
     TransferNotPending,
+    // Security errors
+    #[msg("Voting period has expired")]
+    VotingPeriodExpired,
+    #[msg("Nullifier already used - double voting prevented")]
+    NullifierAlreadyUsed,
+    #[msg("Case already exists")]
+    CaseAlreadyExists,
+    #[msg("Juror selection failed after max attempts")]
+    JurorSelectionFailed,
+    #[msg("Arithmetic overflow detected")]
+    ArithmeticOverflow,
 }
 
 #[program]
