@@ -22,6 +22,7 @@ Community-driven platform for identifying and preventing crypto scams through de
 - **Anchor** - Solana program framework
 - **React** - Modern web interface
 - **IPFS** - Decentralized evidence storage
+- **Groth16 ZK-SNARKs** - Privacy-preserving zero-knowledge proofs on BN254 curve
 
 ---
 
@@ -67,6 +68,8 @@ MIT License
 ## 🔗 Links
 
 - [Documentation](./docs)
+- [ZK Proof System Details](./ZK_PROOF_TYPE.md)
+- [Whitepaper](./WHITEPAPER.md)
 - [Contributing Guidelines](./CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
 
