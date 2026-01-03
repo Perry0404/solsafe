@@ -73,8 +73,16 @@ template VoteCommitment() {
     
     // Constraints
     vote * (1 - vote) === 0;  // Binary vote constraint
-    commitment === Poseidon(vote, salt)
-    nullifier === Poseidon(case_id, commitment)
+    
+    component poseidon_commit = Poseidon(2);
+    poseidon_commit.inputs[0] <== vote;
+    poseidon_commit.inputs[1] <== salt;
+    commitment === poseidon_commit.out;
+    
+    component poseidon_nullifier = Poseidon(2);
+    poseidon_nullifier.inputs[0] <== case_id;
+    poseidon_nullifier.inputs[1] <== commitment;
+    nullifier === poseidon_nullifier.out;
 }
 ```
 
@@ -105,9 +113,9 @@ Groth16 requires a trusted setup ceremony (one-time process):
 **Library**: arkworks-rs (Rust implementation)
 
 ```rust
-// Cargo.toml dependencies
-ark-bn254 = "0.4.0"      // BN254 elliptic curve
-ark-groth16 = "0.4.0"    // Groth16 proving system
+# Cargo.toml dependencies
+ark-bn254 = "0.4.0"      # BN254 elliptic curve
+ark-groth16 = "0.4.0"    # Groth16 proving system
 ```
 
 **Verification Process**:
