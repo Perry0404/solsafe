@@ -67,23 +67,37 @@ template VoteCommitment() {
     signal input salt;        // Random 254-bit value
     signal input case_id;     // Case identifier
     
-    // Public inputs
+    // Public inputs (to be verified)
     signal input commitment;  // Hash of vote and salt
     signal input nullifier;   // Hash of case_id and commitment
     
-    // Constraints
-    vote * (1 - vote) === 0;  // Binary vote constraint
+    // Intermediate signals
+    signal computed_commitment;
+    signal computed_nullifier;
     
+    // Constraint 1: vote must be binary (0 or 1)
+    vote * (1 - vote) === 0;
+    
+    // Constraint 2: Compute commitment = Poseidon(vote, salt)
     component poseidon_commit = Poseidon(2);
     poseidon_commit.inputs[0] <== vote;
     poseidon_commit.inputs[1] <== salt;
-    commitment === poseidon_commit.out;
+    computed_commitment <== poseidon_commit.out;
     
+    // Constraint 3: Verify commitment matches public input
+    commitment === computed_commitment;
+    
+    // Constraint 4: Compute nullifier = Poseidon(case_id, commitment)
     component poseidon_nullifier = Poseidon(2);
     poseidon_nullifier.inputs[0] <== case_id;
     poseidon_nullifier.inputs[1] <== commitment;
-    nullifier === poseidon_nullifier.out;
+    computed_nullifier <== poseidon_nullifier.out;
+    
+    // Constraint 5: Verify nullifier matches public input
+    nullifier === computed_nullifier;
 }
+
+component main {public [commitment, nullifier]} = VoteCommitment();
 ```
 
 **Circuit Statistics:**
@@ -112,11 +126,16 @@ Groth16 requires a trusted setup ceremony (one-time process):
 
 **Library**: arkworks-rs (Rust implementation)
 
-```rust
+**Dependencies** (`Cargo.toml`):
+```toml
 # Cargo.toml dependencies
-ark-bn254 = "0.4.0"      # BN254 elliptic curve
-ark-groth16 = "0.4.0"    # Groth16 proving system
+ark-bn254 = "0.4.0"
+ark-groth16 = "0.4.0"
 ```
+
+These provide:
+- `ark-bn254`: BN254 elliptic curve operations
+- `ark-groth16`: Groth16 proving system implementation
 
 **Verification Process**:
 1. Deserialize 192-byte proof from transaction data
