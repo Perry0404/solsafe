@@ -128,11 +128,11 @@ export default function Whitepaper() {
             <a href="https://github.com/Perry0404/solsafe" target="_blank" rel="noopener noreferrer" className="contact-btn">
               GitHub
             </a>
-            <a href="https://twitter.com/solsafe" target="_blank" rel="noopener noreferrer" className="contact-btn">
-              Twitter
+            <a href="https://twitter.com/Solsafe_io" target="_blank" rel="noopener noreferrer" className="contact-btn">
+              X (Twitter)
             </a>
-            <a href="https://discord.gg/solsafe" target="_blank" rel="noopener noreferrer" className="contact-btn">
-              Discord
+            <a href="mailto:perrypaschal0404@gmail.com" className="contact-btn">
+              Email Us
             </a>
           </div>
         </section>

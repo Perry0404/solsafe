@@ -1,0 +1,235 @@
+.docs-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0015 0%, #1a0030 50%, #2d004d 100%);
+  color: #fff;
+}
+
+.docs-nav {
+  width: 300px;
+  background: rgba(15, 0, 30, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(138, 43, 226, 0.3);
+  padding: 30px 20px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.docs-title {
+  font-size: 1.8rem;
+  margin: 20px 0 30px;
+  color: #da70d6;
+  text-align: center;
+}
+
+.docs-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-item {
+  padding: 12px 20px;
+  background: rgba(138, 43, 226, 0.1);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 8px;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.menu-item:hover {
+  background: rgba(138, 43, 226, 0.2);
+  border-color: rgba(218, 112, 214, 0.5);
+  transform: translateX(5px);
+}
+
+.menu-item.active {
+  background: linear-gradient(135deg, #8a2be2, #da70d6);
+  border-color: #da70d6;
+  font-weight: 600;
+}
+
+.docs-content {
+  margin-left: 300px;
+  flex: 1;
+  padding: 40px 60px;
+  max-width: 1200px;
+}
+
+.content-inner {
+  background: rgba(20, 0, 40, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 16px;
+  padding: 40px;
+  min-height: 80vh;
+}
+
+.content-inner h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #da70d6;
+  border-bottom: 2px solid rgba(138, 43, 226, 0.5);
+  padding-bottom: 15px;
+}
+
+.content-inner h3 {
+  font-size: 1.8rem;
+  margin: 30px 0 15px;
+  color: #bb86fc;
+}
+
+.content-inner h4 {
+  font-size: 1.4rem;
+  margin: 25px 0 12px;
+  color: #b19cd9;
+}
+
+.content-inner p {
+  line-height: 1.8;
+  margin: 15px 0;
+  color: #e0e0e0;
+}
+
+.content-inner ul,
+.content-inner ol {
+  margin: 15px 0 15px 30px;
+  line-height: 1.8;
+}
+
+.content-inner li {
+  margin: 10px 0;
+  color: #e0e0e0;
+}
+
+.content-inner code {
+  background: rgba(138, 43, 226, 0.2);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #ffb3ff;
+}
+
+.content-inner pre {
+  background: rgba(10, 0, 20, 0.8);
+  border: 1px solid rgba(138, 43, 226, 0.4);
+  border-radius: 8px;
+  padding: 20px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.content-inner pre code {
+  background: none;
+  padding: 0;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.api-section {
+  background: rgba(138, 43, 226, 0.1);
+  border-left: 4px solid #8a2be2;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+}
+
+.tech-spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.spec-item,
+.stack-item {
+  background: rgba(138, 43, 226, 0.15);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.spec-item strong,
+.stack-item strong {
+  color: #da70d6;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.docs-footer {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid rgba(138, 43, 226, 0.3);
+  text-align: center;
+  color: #b19cd9;
+}
+
+.docs-footer a {
+  color: #da70d6;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.docs-footer a:hover {
+  border-bottom-color: #da70d6;
+}
+
+.back-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: rgba(138, 43, 226, 0.2);
+  border: 1px solid rgba(138, 43, 226, 0.5);
+  border-radius: 8px;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.3s;
+  margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  background: rgba(138, 43, 226, 0.4);
+  transform: translateX(-5px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .docs-wrapper {
+    flex-direction: column;
+  }
+
+  .docs-nav {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+  }
+
+  .docs-content {
+    margin-left: 0;
+    padding: 30px 20px;
+  }
+
+  .content-inner {
+    padding: 25px;
+  }
+
+  .content-inner h2 {
+    font-size: 2rem;
+  }
+
+  .content-inner h3 {
+    font-size: 1.5rem;
+  }
+
+  .tech-spec {
+    grid-template-columns: 1fr;
+  }
+}

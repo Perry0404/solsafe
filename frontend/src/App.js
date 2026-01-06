@@ -6,8 +6,11 @@ import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adap
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 import "./App.css";
+import "./animations.css";
 import Dashboard from "./Dashboard";
 import Whitepaper from "./components/Whitepaper";
+import WhitepaperEnhanced from "./components/WhitepaperEnhanced";
+import Documentation from "./components/Documentation";
 
 // Import wallet adapter CSS
 import '@solana/wallet-adapter-react-ui/styles.css';
@@ -79,6 +82,11 @@ export default function App() {
                     </li>
                     <li>
                       <Link to="/whitepaper" onClick={() => setMenuOpen(false)}>
+                    <li>
+                      <Link to="/docs" onClick={() => setMenuOpen(false)}>
+                        Docs
+                      </Link>
+                    </li>
                         Whitepaper
                       </Link>
                     </li>
@@ -118,7 +126,7 @@ export default function App() {
               <footer>
                 <p>© 2025 SOLSAFE. All rights reserved.</p>
                 <p>
-                  <a href="https://x.com/Solsafe_io">X</a> | <a href="https://t.me/">Telegram</a> | <Link to="/whitepaper">Whitepaper</Link>
+                  <a href="https://x.com/Solsafe_io">X</a> | <a href="mailto:perrypaschal0404@gmail.com">Contact</a> | <Link to="/whitepaper">Whitepaper</Link>
                 </p>
               </footer>
             </div>
@@ -129,7 +137,10 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         
         {/* ✅ Whitepaper page */}
-        <Route path="/whitepaper" element={<Whitepaper />} />
+        <Route path="/whitepaper" element={<WhitepaperEnhanced />} />
+
+        {/* ✅ Documentation page */}
+        <Route path="/docs" element={<Documentation />} />
       </Routes>
           </Router>
         </WalletModalProvider>
