@@ -79,6 +79,17 @@ pub enum ErrorCode {
     ArithmeticOverflow,
 }
 
+// Event emitted when an address is flagged/frozen by jury consensus
+#[event]
+pub struct FreezeEvent {
+    pub case_id: u64,
+    pub flagged_address: Pubkey,
+    pub votes_for: u64,
+    pub votes_against: u64,
+    pub timestamp: i64,
+    pub frozen: bool,
+}
+
 #[program]
 pub mod solsafe_program {
     use super::*;
