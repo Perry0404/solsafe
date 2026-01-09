@@ -11,12 +11,14 @@ anchor-lang = "0.30.1"
 anchor-spl = "0.30.1"
 switchboard-solana = "0.30.4"
 
-# ZK-SNARK cryptography libraries
-light-sdk = "0.9.0"  # Light Protocol for compressed state
-light-verifier = "0.9.0"  # ZK proof verification
-ark-bn254 = "0.4.0"  # BN254 elliptic curve for Groth16
-ark-groth16 = "0.4.0"  # Groth16 proving system
-ark-serialize = "0.4.0"  # Serialization for proofs
-ark-ff = "0.4.0"  # Finite field arithmetic
-ark-ec = "0.4.0"  # Elliptic curve operations
-bytemuck = "1.14"  # Zero-copy byte conversions for proof data
+# ZK-SNARK dependencies (Groth16 on BN254)
+ark-bn254 = { version = "0.4.0", features = ["curve"] }
+ark-groth16 = "0.4.0"
+ark-serialize = "0.4.0"
+ark-ff = "0.4.0"
+ark-ec = "0.4.0"
+bytemuck = "1.14"
+
+# Post-quantum cryptography (NIST-approved)
+sha3 = "0.10"  # SHA3-256 for quantum-resistant hashing
+bs58 = "0.5"   # Base58 encoding for signatures
