@@ -1,0 +1,10 @@
+        
+        // Emit FreezeEvent for wallets (Phantom) and DEXs (Jupiter) to monitor
+        emit!(crate::FreezeEvent {
+            case_id: case.case_id,
+            flagged_address: case.scam_address,
+            votes_for: case.votes_for,
+            votes_against: case.votes_against,
+            timestamp: clock.unix_timestamp,
+            frozen: true,
+        });
