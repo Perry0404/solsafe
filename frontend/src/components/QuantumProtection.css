@@ -1,0 +1,175 @@
+/* Quantum-Resistant Protection Section Styles */
+
+.quantum-protection {
+  background: linear-gradient(135deg, rgba(100, 255, 218, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  border: 2px solid #64ffda !important;
+  box-shadow: 0 8px 32px rgba(100, 255, 218, 0.3) !important;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  padding: 1.5rem !important;
+}
+
+.quantum-protection::before {
+  content: '🔒';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 4rem;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.quantum-protection h4 {
+  color: #64ffda !important;
+  font-size: 1.4rem !important;
+  margin-bottom: 0.75rem;
+}
+
+.quantum-intro {
+  color: #a8b2d1;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  border-left: 3px solid #64ffda;
+  padding-left: 1rem;
+}
+
+.quantum-intro strong {
+  color: #fff;
+}
+
+.quantum-details {
+  margin-bottom: 1.5rem;
+}
+
+.quantum-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.9rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border: 1px solid rgba(100, 255, 218, 0.1);
+  transition: all 0.2s;
+}
+
+.quantum-item:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(100, 255, 218, 0.3);
+}
+
+.quantum-label {
+  color: #64ffda;
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-width: 180px;
+}
+
+.quantum-item code {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-family: 'Courier New', Monaco, monospace;
+  font-size: 0.85rem;
+  color: #fbbf24;
+  word-break: break-all;
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  min-width: 200px;
+}
+
+.quantum-item a {
+  color: #64ffda;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  background: rgba(100, 255, 218, 0.15);
+  border-radius: 6px;
+  transition: all 0.25s;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+}
+
+.quantum-item a:hover {
+  background: rgba(100, 255, 218, 0.25);
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(100, 255, 218, 0.3);
+}
+
+.quantum-item strong {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.text-success {
+  color: #4ade80 !important;
+}
+
+.text-warning {
+  color: #fbbf24 !important;
+}
+
+.auto-approve-badge {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  padding: 0.3rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-left: 0.75rem;
+  animation: pulseBadge 2s ease-in-out infinite;
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
+}
+
+@keyframes pulseBadge {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+.quantum-guarantee {
+  background: linear-gradient(135deg, rgba(100, 255, 218, 0.08), rgba(74, 222, 128, 0.08));
+  padding: 1.25rem;
+  border-radius: 10px;
+  border-left: 5px solid #64ffda;
+  box-shadow: 0 4px 16px rgba(100, 255, 218, 0.1);
+}
+
+.quantum-guarantee p {
+  color: #64ffda;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.quantum-guarantee ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.quantum-guarantee li {
+  color: #a8b2d1;
+  padding: 0.5rem 0;
+  padding-left: 2rem;
+  position: relative;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.quantum-guarantee li::before {
+  content: '✓';
+  position: absolute;
+  left: 0.5rem;
+  color: #4ade80;
+  font-weight: bold;
+  font-size: 1.2rem;
+}

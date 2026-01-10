@@ -1,0 +1,171 @@
+.transaction-graph-container {
+  position: relative;
+  width: 100%;
+  background: #0a0a0a;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.transaction-graph-container svg {
+  display: block;
+  background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a0a 100%);
+  cursor: grab;
+}
+
+.transaction-graph-container svg:active {
+  cursor: grabbing;
+}
+
+.graph-legend {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.graph-legend h4 {
+  margin: 0 0 1rem 0;
+  color: #64ffda;
+  font-size: 1.1rem;
+}
+
+.legend-items,
+.edge-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.legend-item,
+.edge-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.legend-shape {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #fff;
+  box-shadow: 0 0 8px rgba(100, 255, 218, 0.6);
+}
+
+.legend-shape.scammer {
+  background: #ef4444;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.legend-shape.victim {
+  background: #4ade80;
+}
+
+.legend-shape.intermediary {
+  background: #fbbf24;
+  transform: rotate(45deg);
+}
+
+.legend-shape.exchange {
+  background: #60a5fa;
+  border-radius: 50%;
+}
+
+.legend-shape.zk-pool {
+  background: #a855f7;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.legend-item span,
+.edge-item span {
+  color: #a8b2d1;
+  font-size: 0.9rem;
+}
+
+.edge-line {
+  width: 40px;
+  height: 3px;
+  position: relative;
+}
+
+.edge-line.direct {
+  background: #64ffda;
+}
+
+.edge-line.routed {
+  background: #fbbf24;
+}
+
+.edge-line.zk {
+  background: #a855f7;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #a855f7,
+    #a855f7 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.edge-line.suspected {
+  background: #ef4444;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #ef4444,
+    #ef4444 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+.graph-tooltip {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+  border: 1px solid #64ffda;
+}
+
+.graph-tooltip strong {
+  color: #64ffda;
+  font-size: 1rem;
+}
+
+/* Node animations */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.transaction-graph-container path {
+  transition: all 0.3s ease;
+}
+
+.transaction-graph-container path:hover {
+  animation: pulse 1s infinite;
+}
+
+@media (max-width: 768px) {
+  .graph-legend {
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+
+  .legend-shape {
+    width: 18px;
+    height: 18px;
+  }
+
+  .edge-line {
+    width: 30px;
+  }
+}
