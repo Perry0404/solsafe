@@ -5,7 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
 import { sanitizeInput } from './utils/validation';
-import EvidenceGenerator from './components/EvidenceGenerator';
+// import EvidenceGenerator from './components/EvidenceGenerator';
 
 export default function Dashboard() {
   const { publicKey, connected } = useWallet();
@@ -365,81 +365,10 @@ export default function Dashboard() {
                   <p style={{ marginBottom: '20px', color: '#aaa' }}>
                     Automatically analyze blockchain transactions and generate comprehensive evidence for scam cases with quantum-resistant protection.
                   </p>
-                  <EvidenceGenerator />
-                </div>
-              )}
-
-              {activeTab === 'dashboard' && (
-                <div>
-                  <h2>Profile</h2>
-                  {publicKey ? (
-                    <div>
-                      <p><strong>Address:</strong> {publicKey.toBase58()}</p>
-                      <p><strong>Network:</strong> Devnet</p>
-                      <p><strong>Total Cases:</strong> {cases.length}</p>
-                      <p><strong>Program:</strong> {program ? '✅ Connected' : '❌ Not loaded'}</p>
-                    </div>
-                  ) : (
-                    <p>Connect your wallet to view your profile.</p>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'cases' && publicKey && (
-                <div>
-                  <h2>All Cases</h2>
-                  {loading && <p>Loading cases from blockchain...</p>}
-                  {error && <div className="error-message">{error}</div>}
-                  {!loading && !error && cases.length === 0 && (
-                    <p>No cases found. Submit the first case!</p>
-                  )}
-                  {!loading && cases.length > 0 && (
-                    <div className="cases-list">
-                      {cases.map((caseData, idx) => (
-                        <div key={idx} className="case-card">
-                          <h3>Case #{caseData.account.caseId.toString()}</h3>
-                          <p><strong>Status:</strong> {formatCaseStatus(caseData.account.status)}</p>
-                          <p><strong>State:</strong> {formatCaseState(caseData.account.state)}</p>
-                          <p><strong>Scam Address:</strong> {caseData.account.scamAddress.toBase58().slice(0, 20)}...</p>
-                          <p><strong>Evidence:</strong> <a href={caseData.account.evidence} target="_blank" rel="noopener noreferrer">View</a></p>
-                          <p><strong>Votes For:</strong> {caseData.account.votesFor} | <strong>Against:</strong> {caseData.account.votesAgainst}</p>
-                          <p><strong>Jurors:</strong> {caseData.account.jurors.length}/5</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === 'vote' && publicKey && (
-                <div>
-                  <h2>Vote on Case</h2>
-                  <div className="form-group">
-                    <label>Case ID:</label>
-                    <input
-                      type="number"
-                      value={selectedCaseId}
-                      onChange={(e) => setSelectedCaseId(e.target.value)}
-                      placeholder="Enter case ID to vote on"
-                    />
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                    <button
-                      className="cta-button"
-                      onClick={() => selectedCaseId && handleVote(parseInt(selectedCaseId), true)}
-                      disabled={!selectedCaseId}
-                    >
-                      ? Vote Approve
-                    </button>
-                    <button
-                      className="cta-button"
-                      style={{ backgroundColor: '#dc3545' }}
-                      onClick={() => selectedCaseId && handleVote(parseInt(selectedCaseId), false)}
-                      disabled={!selectedCaseId}
-                    >
-                      ? Vote Reject
-                    </button>
-                  </div>
+                  {/* <EvidenceGenerator /> */}
+                  <p style={{ color: '#ff6b6b', padding: '20px', background: 'rgba(220, 53, 69, 0.1)', borderRadius: '8px' }}>
+                    Evidence Generator component is being synced. Please wait...
+                  </p>
                 </div>
               )}
             </div>
