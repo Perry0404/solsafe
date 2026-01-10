@@ -47,8 +47,11 @@
     ]
   },
   "devDependencies": {
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
     "crypto-browserify": "^3.12.1",
     "react-app-rewired": "^2.2.1",
-    "stream-browserify": "^3.0.0"
+    "stream-browserify": "^3.0.0",
+    "typescript": "^5.9.3"
   }
 }

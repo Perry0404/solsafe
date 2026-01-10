@@ -10,6 +10,14 @@ module.exports = function override(config) {
   });
   config.resolve.fallback = fallback;
   config.resolve.fullySpecified = false;
+  
+  // Add TypeScript extensions
+  config.resolve.extensions = [
+    ...(config.resolve.extensions || []),
+    '.ts',
+    '.tsx'
+  ];
+  
   config.plugins = (config.plugins || []).concat([
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
