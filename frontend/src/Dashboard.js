@@ -5,7 +5,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
 import { sanitizeInput } from './utils/validation';
-// import EvidenceGenerator from './components/EvidenceGenerator';
+import EvidenceGenerator from './components/EvidenceGenerator';
 
 export default function Dashboard() {
   const { publicKey, connected } = useWallet();
@@ -361,14 +361,7 @@ export default function Dashboard() {
 
               {activeTab === 'evidence' && publicKey && (
                 <div>
-                  <h2>🔬 Evidence Generator</h2>
-                  <p style={{ marginBottom: '20px', color: '#aaa' }}>
-                    Automatically analyze blockchain transactions and generate comprehensive evidence for scam cases with quantum-resistant protection.
-                  </p>
-                  {/* <EvidenceGenerator /> */}
-                  <p style={{ color: '#ff6b6b', padding: '20px', background: 'rgba(220, 53, 69, 0.1)', borderRadius: '8px' }}>
-                    Evidence Generator component is being synced. Please wait...
-                  </p>
+                  <EvidenceGenerator />
                 </div>
               )}
             </div>
