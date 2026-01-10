@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
+import { sanitizeInput } from './utils/validation';
+import EvidenceGenerator from './components/EvidenceGenerator';
 
 export default function Dashboard() {
   const { publicKey, connected } = useWallet();
@@ -148,6 +150,13 @@ export default function Dashboard() {
                 disabled={!connected}
               >
                 🗳️ Vote
+              </button>
+              <button 
+                className={`nav-button ${activeTab === 'evidence' ? 'active' : ''}`}
+                onClick={() => setActiveTab('evidence')}
+                disabled={!connected}
+              >
+                🔬 Evidence Generator
               </button>
             </div>
 
@@ -347,6 +356,16 @@ export default function Dashboard() {
                       ❌ Vote Reject
                     </button>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'evidence' && publicKey && (
+                <div>
+                  <h2>🔬 Evidence Generator</h2>
+                  <p style={{ marginBottom: '20px', color: '#aaa' }}>
+                    Automatically analyze blockchain transactions and generate comprehensive evidence for scam cases with quantum-resistant protection.
+                  </p>
+                  <EvidenceGenerator />
                 </div>
               )}
 
