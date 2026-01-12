@@ -154,7 +154,6 @@ export default function Dashboard() {
               <button 
                 className={`nav-button ${activeTab === 'evidence' ? 'active' : ''}`}
                 onClick={() => setActiveTab('evidence')}
-                disabled={!connected}
               >
                 🔬 Evidence Generator
               </button>
@@ -359,7 +358,7 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {activeTab === 'evidence' && publicKey && (
+              {activeTab === 'evidence' && (
                 <div>
                   <EvidenceGenerator />
                 </div>
