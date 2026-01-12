@@ -31,7 +31,7 @@ export default function Dashboard() {
       console.log('🔄 Fetching cases on wallet connect...');
       fetchCases();
     }
-  }, [connected, program, fetchCases]);
+  }, [connected, program]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-generate next case ID
   useEffect(() => {

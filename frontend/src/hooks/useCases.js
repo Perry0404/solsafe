@@ -426,7 +426,7 @@ export function useCases() {
     if (program) {
       fetchCases();
     }
-  }, [program]);
+  }, [program]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     // State
