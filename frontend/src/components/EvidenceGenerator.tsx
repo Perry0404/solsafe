@@ -377,16 +377,16 @@ const EvidenceGenerator: React.FC = () => {
     <div className="evidence-generator">
       <h2>🔍 Advanced Evidence Generator</h2>
       <p className="subtitle">
-        Real-time blockchain analysis with ML risk scoring, ZK transaction tracing, 
-        and <strong>quantum-resistant</strong> evidence storage
+        Analyze any blockchain address from Solana, Ethereum, BSC, Polygon and more.
+        Generate evidence with ML risk scoring, fund flow analysis, and <strong>quantum-resistant</strong> storage.
       </p>
 
       <div className="generator-form">
         <div className="form-group">
-          <label>Suspicious Address</label>
+          <label>Suspicious Wallet Address</label>
           <input
             type="text"
-            placeholder="Enter Solana address (e.g., 7xKXt...)"
+            placeholder="Enter wallet address from any blockchain (Solana, Ethereum, BSC...)"
             value={scamAddress}
             onChange={(e) => setScamAddress(e.target.value)}
             className="address-input"
@@ -414,8 +414,9 @@ const EvidenceGenerator: React.FC = () => {
           disabled={loading || !scamAddress}
           className="generate-btn"
         >
-          {loading ? '⏳ Generating...' : '🔍 Generate Evidence'}
+          {loading ? '⏳ Analyzing...' : '🔍 Analyze Wallet & Preview Evidence'}
         </button>
+        <p className="help-text">💡 Evidence will be shown below for review before you decide to upload</p>
       </div>
 
       {loading && (
@@ -766,7 +767,7 @@ const EvidenceGenerator: React.FC = () => {
           </div>
           <div className="feature-item">
             <h5>🕸️ Multi-Hop Fund Flow (5 Levels)</h5>
-            <p>Follows money through 500+ wallets, 5 hops deep. Arkham stops at 2-3.</p>
+            <p>Follows money through 500+ wallets, 5 hops deep. See exactly where stolen funds go.</p>
           </div>
           <div className="feature-item">
             <h5>🎭 Scam Ring Detection</h5>
@@ -790,74 +791,26 @@ const EvidenceGenerator: React.FC = () => {
           </div>
         </div>
         
-        <div className="comparison-section">
-          <h4>📊 How We Compare</h4>
-          <table className="comparison-table">
-            <thead>
-              <tr>
-                <th>Feature</th>
-                <th>Arkham</th>
-                <th>Bubblemaps</th>
-                <th className="solsafe-col">SOLSAFE</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Fund flow depth</td>
-                <td>2-3 hops</td>
-                <td>Visual only</td>
-                <td className="solsafe-col">✅ 5 hops (500 wallets)</td>
-              </tr>
-              <tr>
-                <td>ZK transaction tracing</td>
-                <td>❌ No</td>
-                <td>❌ No</td>
-                <td className="solsafe-col">✅ YES (Industry First)</td>
-              </tr>
-              <tr>
-                <td>ML risk scoring</td>
-                <td>Basic labels</td>
-                <td>❌ No</td>
-                <td className="solsafe-col">✅ 0-100 automated score</td>
-              </tr>
-              <tr>
-                <td>Scam pattern matching</td>
-                <td>Manual research</td>
-                <td>❌ No</td>
-                <td className="solsafe-col">✅ 10K+ signatures</td>
-              </tr>
-              <tr>
-                <td>Entity resolution</td>
-                <td>✅ Yes</td>
-                <td>Partial</td>
-                <td className="solsafe-col">✅ With confidence scoring</td>
-              </tr>
-              <tr>
-                <td>Real-time capture</td>
-                <td>❌ Historical only</td>
-                <td>❌ Historical only</td>
-                <td className="solsafe-col">✅ Instant blockchain scan</td>
-              </tr>
-              <tr>
-                <td>Wallet clustering</td>
-                <td>Manual</td>
-                <td>✅ Visual</td>
-                <td className="solsafe-col">✅ Automated + Typed</td>
-              </tr>
-              <tr>
-                <td>Interactive graph</td>
-                <td>Static</td>
-                <td>✅ Bubbles</td>
-                <td className="solsafe-col">✅ D3.js force-directed</td>
-              </tr>
-              <tr>
-                <td>Cost</td>
-                <td>$150-500/mo</td>
-                <td>$50-200/mo</td>
-                <td className="solsafe-col">✅ FREE (Open Source)</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="benefits-section">
+          <h4>✨ Why SOLSAFE Evidence Generator is Different</h4>
+          <div className="benefits-grid">
+            <div className="benefit-card">
+              <h5>🎯 Multi-Chain Support</h5>
+              <p>Analyze wallets from Solana, Ethereum, BSC, Polygon, Avalanche, and more. One tool for all blockchains.</p>
+            </div>
+            <div className="benefit-card">
+              <h5>👁️ Preview Before Upload</h5>
+              <p>See all generated evidence, graphs, and analysis BEFORE uploading. Full transparency, no surprises.</p>
+            </div>
+            <div className="benefit-card">
+              <h5>🆓 Completely Free</h5>
+              <p>No subscriptions, no paid tiers. Open source and community-driven. Everyone deserves protection.</p>
+            </div>
+            <div className="benefit-card">
+              <h5>🔒 Quantum-Resistant</h5>
+              <p>Your evidence will remain valid for 10+ years, even after quantum computers arrive.</p>
+            </div>
+          </div>
         </div>
 
         <div className="zk-tech-explanation">

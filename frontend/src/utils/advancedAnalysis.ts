@@ -115,7 +115,7 @@ export class AdvancedBlockchainAnalysis {
     ];
   }
 
-  // Advanced multi-hop fund tracing (better than Arkham's basic tracking)
+  // Advanced multi-hop fund tracing with up to 5 levels deep
   async traceFundFlowAdvanced(
     startAddress: PublicKey,
     maxDepth: number = 5,

@@ -5,6 +5,9 @@
   "homepage": ".",
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1",
+    "@lit/reactive-element": "^2.1.2",
+    "@reown/appkit-scaffold-ui": "^1.8.16",
+    "@reown/appkit-utils": "^1.8.16",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
@@ -19,6 +22,8 @@
     "d3": "^7.9.0",
     "ipfs-http-client": "^60.0.1",
     "js-sha3": "^0.9.3",
+    "lit": "^3.3.2",
+    "lit-element": "^4.2.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.4",
