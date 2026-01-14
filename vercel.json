@@ -1,10 +1,5 @@
 {
-    "buildCommand":  "cd frontend \u0026\u0026 npm install \u0026\u0026 npm run build",
     "outputDirectory":  "frontend/build",
-    "framework":  null,
-    "build":  {
-                  "env":  {
-                              "DISABLE_ESLINT_PLUGIN":  "true"
-                          }
-              }
+    "buildCommand":  "cd frontend \u0026\u0026 CI=false npm install \u0026\u0026 npm run build",
+    "framework":  null
 }
