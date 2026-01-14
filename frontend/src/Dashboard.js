@@ -171,7 +171,7 @@ export default function Dashboard() {
                 <div>
                   <h2>Dashboard</h2>
                   
-                  {
+
                   {publicKey ? (
                     <div>
                       <h3 style={{ marginBottom: '1rem' }}>Your Account</h3>
