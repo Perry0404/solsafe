@@ -128,34 +128,34 @@ export default function Dashboard() {
                 className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
                 onClick={() => setActiveTab('dashboard')}
               >
-                ðŸ“Š Dashboard
+                🏛️ Dashboard
               </button>
               <button 
                 className={`nav-button ${activeTab === 'submit' ? 'active' : ''}`}
                 onClick={() => setActiveTab('submit')}
                 disabled={!connected}
               >
-                ðŸ“ Submit Case
+                📝 Submit Case
               </button>
               <button 
                 className={`nav-button ${activeTab === 'cases' ? 'active' : ''}`}
                 onClick={() => setActiveTab('cases')}
                 disabled={!connected}
               >
-                ðŸ” View Cases
+                📋 View Cases
               </button>
               <button 
                 className={`nav-button ${activeTab === 'vote' ? 'active' : ''}`}
                 onClick={() => setActiveTab('vote')}
                 disabled={!connected}
               >
-                ðŸ—³ï¸ Vote
+                🗳️ Vote
               </button>
               <button 
                 className={`nav-button ${activeTab === 'evidence' ? 'active' : ''}`}
                 onClick={() => setActiveTab('evidence')}
               >
-                ðŸ”¬ Evidence Generator
+                🔬 Evidence Generator
               </button>
             </div>
 
