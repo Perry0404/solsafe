@@ -1,5 +1,8 @@
 {
-    "outputDirectory":  "frontend/build",
-    "buildCommand":  "cd frontend \u0026\u0026 CI=false npm install \u0026\u0026 npm run build",
-    "framework":  null
+  "buildCommand": "cd frontend && CI=false npm install && npm run build",
+  "outputDirectory": "frontend/build",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
