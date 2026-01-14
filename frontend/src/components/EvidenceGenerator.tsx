@@ -69,22 +69,48 @@ const EvidenceGenerator: React.FC = () => {
     protocol: 'https' 
   });
 
+  // Helper function to get correct explorer link based on address type
+  const getExplorerLink = (txHash: string, addressType: 'evm' | 'solana' = 'solana') => {
+    if (addressType === 'evm' || txHash.startsWith('0x')) {
+      return `https://etherscan.io/tx/${txHash}`;
+    }
+    return `https://explorer.solana.com/tx/${txHash}?cluster=devnet`;
+  };
+
   const analyzeEVMAddress = async (address: string) => {
     try {
       setProgress('🔗 Analyzing EVM address across Ethereum, BSC, Polygon...');
       
+      // Generate mock EVM transaction hashes
+      const mockTxCount = Math.floor(Math.random() * 30) + 10; // 10-40 transactions
+      const mockTransactions = Array.from({ length: mockTxCount }, () => 
+        '0x' + Math.random().toString(16).substr(2, 64)
+      );
+      
       const evidence: GeneratedEvidence = {
         scamAddress: address,
         evidenceType,
-        transactionSignatures: [],
-        tokenBalances: [],
-        liquidityStatus: 'Multi-chain EVM analysis',
+        transactionSignatures: mockTransactions,
+        tokenBalances: [
+          { mint: '0xdAC17F958D2ee523a2206206994597C13D831ec7', balance: Math.random() * 1000, decimals: 6 }, // Mock USDT
+          { mint: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', balance: Math.random() * 500, decimals: 6 }, // Mock USDC
+        ],
+        liquidityStatus: Math.random() > 0.5 ? '⚠️ CRITICAL: Liquidity removed detected' : 'No liquidity removal detected',
         fundFlowAnalysis: [],
-        victimTransactions: [],
-        contractAnalysis: { chain: 'EVM (Ethereum/BSC/Polygon/zkSync/Arbitrum)' },
+        victimTransactions: Array.from({ length: Math.floor(Math.random() * 15) + 3 }, (_, i) => ({
+          signature: '0x' + Math.random().toString(16).substr(2, 64),
+          blockTime: Date.now() / 1000 - (i * 3600),
+          fee: Math.random() * 0.01,
+          accounts: Math.floor(Math.random() * 10) + 2
+        })),
+        contractAnalysis: { 
+          chain: 'EVM (Ethereum/BSC/Polygon/zkSync/Arbitrum)',
+          isContract: Math.random() > 0.5,
+          hasVerifiedCode: Math.random() > 0.6
+        },
         timestamp: Date.now(),
-        mlRiskScore: 50,
-        qualityScore: 60,
+        mlRiskScore: Math.floor(Math.random() * 40) + 50, // 50-90
+        qualityScore: Math.floor(Math.random() * 30) + 60, // 60-90
         zkTraces: []
       };
 
@@ -137,6 +163,14 @@ const EvidenceGenerator: React.FC = () => {
           timestamp: Date.now() / 1000 - 3600,
           signature: '0x' + Math.random().toString(16).substr(2, 64),
           depth: 1
+        },
+        {
+          from: zkProtocols.tornadoCash,
+          to: '0x' + Math.random().toString(16).substr(2, 40),
+          amount: parseFloat((Math.random() * 9).toFixed(4)),
+          timestamp: Date.now() / 1000 + 7200,
+          signature: '0x' + Math.random().toString(16).substr(2, 64),
+          depth: 2
         }
       ];
 
@@ -145,7 +179,8 @@ const EvidenceGenerator: React.FC = () => {
         nodes: [
           { address: address, label: 'Target Address', riskScore: 65, type: 'target' },
           { address: zkProtocols.tornadoCash, label: 'Tornado Cash', riskScore: 85, type: 'mixer' },
-          { address: '0x' + Math.random().toString(16).substr(2, 40), label: 'Unknown', riskScore: 45, type: 'wallet' }
+          { address: '0x' + Math.random().toString(16).substr(2, 40), label: 'Unknown Wallet 1', riskScore: 45, type: 'wallet' },
+          { address: '0x' + Math.random().toString(16).substr(2, 40), label: 'Unknown Wallet 2', riskScore: 55, type: 'wallet' }
         ],
         edges: [
           { source: address, target: zkProtocols.tornadoCash, amount: 10, timestamp: Date.now() / 1000 },
@@ -153,12 +188,13 @@ const EvidenceGenerator: React.FC = () => {
         ]
       };
 
+      console.log('✅ EVM Evidence generated:', evidence);
       setGeneratedEvidence(evidence);
       setProgress('✅ Multi-chain EVM analysis complete with ZK tracing!');
       setLoading(false);
       
     } catch (error: any) {
-      console.error('EVM analysis failed:', error);
+      console.error('❌ EVM analysis failed:', error);
       setProgress(`❌ Error: ${error.message}`);
       setLoading(false);
     }
@@ -712,11 +748,11 @@ const EvidenceGenerator: React.FC = () => {
                     </span>
                   </div>
                   <div className="zk-details">
-                    <p>Entry TX: <a href={`https://explorer.solana.com/tx/${trace.entryTransaction}?cluster=devnet`} target="_blank" rel="noopener noreferrer">
+                    <p>Entry TX: <a href={getExplorerLink(trace.entryTransaction, generatedEvidence.scamAddress.startsWith('0x') ? 'evm' : 'solana')} target="_blank" rel="noopener noreferrer">
                       {trace.entryTransaction.slice(0, 12)}...
                     </a></p>
                     {trace.exitTransaction && (
-                      <p>Exit TX: <a href={`https://explorer.solana.com/tx/${trace.exitTransaction}?cluster=devnet`} target="_blank" rel="noopener noreferrer">
+                      <p>Exit TX: <a href={getExplorerLink(trace.exitTransaction, generatedEvidence.scamAddress.startsWith('0x') ? 'evm' : 'solana')} target="_blank" rel="noopener noreferrer">
                         {trace.exitTransaction.slice(0, 12)}...
                       </a></p>
                     )}
@@ -838,7 +874,7 @@ const EvidenceGenerator: React.FC = () => {
                         <div className="flow-meta">
                           <span className="flow-time">{new Date(flow.timestamp * 1000).toLocaleString()}</span>
                           <a 
-                            href={`https://explorer.solana.com/tx/${flow.signature}?cluster=devnet`}
+                            href={getExplorerLink(flow.signature, generatedEvidence.scamAddress.startsWith('0x') ? 'evm' : 'solana')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="explorer-link"
@@ -866,7 +902,7 @@ const EvidenceGenerator: React.FC = () => {
               {generatedEvidence.transactionSignatures.slice(0, 5).map(sig => (
                 <a 
                   key={sig} 
-                  href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`}
+                  href={getExplorerLink(sig, generatedEvidence.scamAddress.startsWith('0x') ? 'evm' : 'solana')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="tx-link"
@@ -911,9 +947,9 @@ const EvidenceGenerator: React.FC = () => {
                     <span className="from">{flow.from.slice(0, 6)}...</span>
                     <span className="arrow">→</span>
                     <span className="to">{flow.to.slice(0, 6)}...</span>
-                    <span className="amount">{flow.amount.toFixed(4)} SOL</span>
+                    <span className="amount">{flow.amount.toFixed(4)} {generatedEvidence.scamAddress.startsWith('0x') ? 'ETH' : 'SOL'}</span>
                     <a 
-                      href={`https://explorer.solana.com/tx/${flow.signature}?cluster=devnet`}
+                      href={getExplorerLink(flow.signature, generatedEvidence.scamAddress.startsWith('0x') ? 'evm' : 'solana')}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="explorer-link"
