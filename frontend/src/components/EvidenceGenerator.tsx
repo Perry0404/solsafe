@@ -428,7 +428,46 @@ const EvidenceGenerator: React.FC = () => {
 
       {generatedEvidence && (
         <div className="evidence-results">
-          <h3>📋 Advanced Evidence Report</h3>
+          <h3>📋 Evidence Analysis Preview</h3>
+          <div className="preview-notice">
+            <h4>👁️ Review Your Evidence Before Uploading</h4>
+            <p>Examine all findings below. When satisfied, click "Upload to Blockchain" at the bottom.</p>
+          </div>
+
+          {/* VISUAL SUMMARY - Like Arkham/Bubblemaps */}
+          <div className="evidence-card visual-summary">
+            <h4>📊 Visual Summary</h4>
+            <div className="summary-stats">
+              <div className="stat-box risk">
+                <div className="stat-icon">⚠️</div>
+                <div className="stat-content">
+                  <div className="stat-label">Risk Score</div>
+                  <div className="stat-value">{generatedEvidence.mlRiskScore || 0}/100</div>
+                </div>
+              </div>
+              <div className="stat-box transactions">
+                <div className="stat-icon">📝</div>
+                <div className="stat-content">
+                  <div className="stat-label">Transactions</div>
+                  <div className="stat-value">{generatedEvidence.transactionSignatures.length}</div>
+                </div>
+              </div>
+              <div className="stat-box flows">
+                <div className="stat-icon">💸</div>
+                <div className="stat-content">
+                  <div className="stat-label">Fund Flows</div>
+                  <div className="stat-value">{generatedEvidence.fundFlowAnalysis.length}</div>
+                </div>
+              </div>
+              <div className="stat-box victims">
+                <div className="stat-icon">👥</div>
+                <div className="stat-content">
+                  <div className="stat-label">Victims</div>
+                  <div className="stat-value">{generatedEvidence.victimTransactions.length}</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Quantum-Resistant Storage Section - NEW */}
           <div className="evidence-card quantum-protection">
@@ -654,27 +693,49 @@ const EvidenceGenerator: React.FC = () => {
             <h4>Transaction History</h4>
             <p>Total Transactions: {generatedEvidence.transactionSignatures.length}</p>
             <div className="tx-list">
-              {generatedEvidence.transactionSignatures.slice(0, 5).map(sig => (
-                <a 
-                  key={sig} 
-                  href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="tx-link"
-                >
-                  {sig.slice(0, 8)}...{sig.slice(-8)}
-                </a>
-              ))}
-              {generatedEvidence.transactionSignatures.length > 5 && (
-                <p>+ {generatedEvidence.transactionSignatures.length - 5} more...</p>
-              )}
-            </div>
-          </div>
-
-          <div className="evidence-card liquidity-status">
-            <h4>Liquidity Status</h4>
-            <p className={generatedEvidence.liquidityStatus.includes('CRITICAL') ? 'critical' : ''}>
-              {generatedEvidence.liquidityStatus}
+              {generatedEvidence.transa fund-flow-visual">
+            <h4>💸 Fund Flow Visualization - Money Trail</h4>
+            <p className="flow-subtitle">Track where money came from and where it went (like Arkham/Bubblemaps)</p>
+            {generatedEvidence.fundFlowAnalysis.length > 0 ? (
+              <>
+                <div className="flow-diagram">
+                  {generatedEvidence.fundFlowAnalysis.slice(0, 15).map((flow, i) => (
+                    <div key={i} className="flow-row">
+                      <div className="flow-step">
+                        <span className="flow-depth">Hop {flow.depth}</span>
+                        <div className="flow-addresses">
+                          <div className="address-box from">
+                            <span className="address-label">FROM</span>
+                            <code className="address-value">{flow.from.slice(0, 8)}...{flow.from.slice(-6)}</code>
+                          </div>
+                          <div className="flow-arrow-container">
+                            <div className="flow-amount-label">{flow.amount.toFixed(4)} SOL</div>
+                            <div className="flow-arrow">→</div>
+                          </div>
+                          <div className="address-box to">
+                            <span className="address-label">TO</span>
+                            <code className="address-value">{flow.to.slice(0, 8)}...{flow.to.slice(-6)}</code>
+                          </div>
+                        </div>
+                        <div className="flow-meta">
+                          <span className="flow-time">{new Date(flow.timestamp * 1000).toLocaleString()}</span>
+                          <a 
+                            href={`https://explorer.solana.com/tx/${flow.signature}?cluster=devnet`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="explorer-link"
+                          >
+                            🔗 View Transaction
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {generatedEvidence.fundFlowAnalysis.length > 15 && (
+                  <p className="more-flows">+ {generatedEvidence.fundFlowAnalysis.length - 15} more fund flows tracked</p>
+                )}
+              </ratedEvidence.liquidityStatus}
             </p>
           </div>
 
@@ -745,12 +806,13 @@ const EvidenceGenerator: React.FC = () => {
 
           <div className="action-buttons">
             <button onClick={downloadEvidence} className="download-btn">
-              📥 Download Evidence
+              📥 Download Evidence JSON
             </button>
-            <button onClick={submitToContract} className="submit-btn">
-              📤 Submit to SOLSAFE
+            <button onClick={submitToContract} className="submit-btn primary">
+              📤 Upload to Blockchain (IPFS + Arweave)
             </button>
           </div>
+          <p className="upload-notice">⚠️ Once uploaded, evidence is permanent and cannot be deleted</p>
         </div>
       )}
 

@@ -819,3 +819,286 @@
     padding: 0.5rem;
   }
 }
+
+/* NEW: Preview Notice */
+.preview-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.preview-notice h4 {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.preview-notice p {
+  margin: 0;
+  color: #e0e7ff;
+  font-size: 1.1rem;
+}
+
+/* Visual Summary Stats - Like Arkham */
+.visual-summary {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 2px solid #3b82f6;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 2px solid rgba(100, 255, 218, 0.3);
+  transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-5px);
+  border-color: #64ffda;
+  box-shadow: 0 10px 30px rgba(100, 255, 218, 0.2);
+}
+
+.stat-box.risk {
+  border-color: #ef4444;
+}
+
+.stat-box.transactions {
+  border-color: #3b82f6;
+}
+
+.stat-box.flows {
+  border-color: #10b981;
+}
+
+.stat-box.victims {
+  border-color: #f59e0b;
+}
+
+.stat-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+}
+
+/* Fund Flow Visualization - Like Bubblemaps */
+.fund-flow-visual {
+  background: #0f172a;
+  border: 2px solid #8b5cf6;
+}
+
+.flow-subtitle {
+  color: #a78bfa;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.flow-row {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid #8b5cf6;
+  transition: all 0.3s ease;
+}
+
+.flow-row:hover {
+  border-left-width: 8px;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+  transform: translateX(5px);
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.flow-depth {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #c4b5fd;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.flow-addresses {
+  display: grid;
+  grid-template-columns: 2fr auto 2fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.address-box {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 2px solid rgba(100, 255, 218, 0.3);
+  transition: all 0.3s ease;
+}
+
+.address-box:hover {
+  border-color: #64ffda;
+  box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+}
+
+.address-box.from {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.address-box.to {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+.address-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.address-value {
+  display: block;
+  font-size: 1rem;
+  color: #64ffda;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+}
+
+.flow-arrow-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flow-amount-label {
+  font-size: 1.1rem;
+  color: #fbbf24;
+  font-weight: bold;
+  white-space: nowrap;
+  padding: 0.5rem 1rem;
+  background: rgba(251, 191, 36, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.flow-arrow {
+  font-size: 2rem;
+  color: #8b5cf6;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.flow-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  font-size: 0.9rem;
+}
+
+.flow-time {
+  color: #94a3b8;
+}
+
+.more-flows {
+  margin-top: 1rem;
+  text-align: center;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 8px;
+}
+
+.upload-notice {
+  text-align: center;
+  color: #fbbf24;
+  margin-top: 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.submit-btn.primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+}
+
+.submit-btn.primary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .flow-addresses {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .flow-arrow-container {
+    transform: rotate(90deg);
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+}
