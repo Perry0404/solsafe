@@ -689,11 +689,8 @@ const EvidenceGenerator: React.FC = () => {
             </div>
           )}
 
-          <div className="evidence-card">
-            <h4>Transaction History</h4>
-            <p>Total Transactions: {generatedEvidence.transactionSignatures.length}</p>
-            <div className="tx-list">
-              {generatedEvidence.transa fund-flow-visual">
+          {/* Fund Flow Visualization - Like Bubblemaps/Arkham */}
+          <div className="evidence-card fund-flow-visual">
             <h4>💸 Fund Flow Visualization - Money Trail</h4>
             <p className="flow-subtitle">Track where money came from and where it went (like Arkham/Bubblemaps)</p>
             {generatedEvidence.fundFlowAnalysis.length > 0 ? (
@@ -735,7 +732,37 @@ const EvidenceGenerator: React.FC = () => {
                 {generatedEvidence.fundFlowAnalysis.length > 15 && (
                   <p className="more-flows">+ {generatedEvidence.fundFlowAnalysis.length - 15} more fund flows tracked</p>
                 )}
-              </ratedEvidence.liquidityStatus}
+              </>
+            ) : (
+              <p>No significant fund movements detected</p>
+            )}
+          </div>
+
+          <div className="evidence-card">
+            <h4>Transaction History</h4>
+            <p>Total Transactions: {generatedEvidence.transactionSignatures.length}</p>
+            <div className="tx-list">
+              {generatedEvidence.transactionSignatures.slice(0, 5).map(sig => (
+                <a 
+                  key={sig} 
+                  href={`https://explorer.solana.com/tx/${sig}?cluster=devnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tx-link"
+                >
+                  {sig.slice(0, 8)}...{sig.slice(-8)}
+                </a>
+              ))}
+              {generatedEvidence.transactionSignatures.length > 5 && (
+                <p>+ {generatedEvidence.transactionSignatures.length - 5} more...</p>
+              )}
+            </div>
+          </div>
+
+          <div className="evidence-card liquidity-status">
+            <h4>Liquidity Status</h4>
+            <p className={generatedEvidence.liquidityStatus.includes('CRITICAL') ? 'critical' : ''}>
+              {generatedEvidence.liquidityStatus}
             </p>
           </div>
 
