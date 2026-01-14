@@ -736,6 +736,8 @@ main {
   .nav-button {
     margin-bottom: 0;
     justify-content: center;
+    font-size: 0.9rem;
+    padding: 0.875rem;
   }
 
   .cases-list {
@@ -748,6 +750,19 @@ main {
   
   .features-grid {
     grid-template-columns: 1fr;
+  }
+  
+  /* Dashboard specific */
+  main {
+    padding: 1rem;
+  }
+  
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  .hero p {
+    font-size: 1rem;
   }
 }
 
@@ -825,6 +840,10 @@ main {
   .sidebar {
     grid-template-columns: 1fr;
   }
+  
+  .nav-button {
+    text-align: center;
+  }
 
   .cta-button {
     width: 100%;
@@ -840,6 +859,21 @@ main {
   
   .step {
     width: 100%;
+  }
+  
+  /* Form improvements for mobile */
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+  
+  .case-form {
+    max-width: 100%;
+  }
+  
+  .case-card {
+    padding: 1.25rem;
   }
 }
 
@@ -885,15 +919,39 @@ main {
   .content {
     padding: 1rem;
   }
+  
+  .content h2 {
+    font-size: 1.5rem;
+  }
 
   .case-card {
     padding: 1rem;
+  }
+  
+  .case-card h3 {
+    font-size: 1.1rem;
   }
 
   .form-group input,
   .form-group textarea,
   .form-group select {
     font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+  
+  .nav-button {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  /* Dashboard notice */
+  .notice {
+    padding: 1rem;
+  }
+  
+  .notice h3 {
+    font-size: 1rem;
   }
 }
 

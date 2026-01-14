@@ -170,13 +170,18 @@ const EvidenceGenerator: React.FC = () => {
       return;
     }
 
+    console.log('🔍 Starting evidence generation for:', scamAddress);
+
     try {
       setLoading(true);
+      setGeneratedEvidence(null); // Clear previous results
       setProgress('Detecting blockchain type...');
 
       // Detect blockchain type
       const isEVM = scamAddress.startsWith('0x') && scamAddress.length === 42;
       const isSolana = !isEVM && scamAddress.length >= 32 && scamAddress.length <= 44;
+
+      console.log('Blockchain detected:', { isEVM, isSolana });
 
       if (!isEVM && !isSolana) {
         alert('Invalid address format. Please enter a valid Solana or EVM (Ethereum/BSC/Polygon) address.');
@@ -186,12 +191,14 @@ const EvidenceGenerator: React.FC = () => {
 
       if (isEVM) {
         // EVM address detected
+        console.log('🔗 Analyzing EVM address...');
         setProgress('🔗 Analyzing EVM address (Ethereum/BSC/Polygon)...');
         await analyzeEVMAddress(scamAddress);
         return;
       }
 
       // Solana address
+      console.log('⚡ Analyzing Solana address...');
       setProgress('Initializing Solana blockchain analysis...');
       const pubkey = new PublicKey(scamAddress);
       const analyzer = new AdvancedBlockchainAnalysis(connection);

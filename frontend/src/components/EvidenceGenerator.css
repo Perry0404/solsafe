@@ -92,12 +92,33 @@
   cursor: not-allowed;
 }
 
+.help-text {
+  text-align: center;
+  color: #a8b2d1;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  font-style: italic;
+}
+
 .progress-indicator {
   text-align: center;
   padding: 2rem;
-  background: rgba(100, 255, 218, 0.1);
+  background: linear-gradient(135deg, rgba(100, 255, 218, 0.15), rgba(102, 126, 234, 0.15));
   border-radius: 12px;
   margin-bottom: 2rem;
+  border: 2px solid rgba(100, 255, 218, 0.3);
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .spinner {
@@ -116,8 +137,19 @@
 
 .progress-indicator p {
   color: #64ffda;
-  font-size: 1rem;
+  font-size: 1.1rem;
   margin: 0;
+  font-weight: 600;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .evidence-results {
@@ -778,14 +810,40 @@
 @media (max-width: 768px) {
   .evidence-generator {
     padding: 1rem;
+    margin: 1rem auto;
   }
 
   .generator-form {
     padding: 1rem;
   }
+  
+  .evidence-generator h2 {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.95rem;
+  }
+  
+  .generate-btn {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+  
+  .help-text {
+    font-size: 0.9rem;
+  }
 
   .action-buttons {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .download-btn,
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
   }
 
   .flow-item {
@@ -812,11 +870,37 @@
   
   .comparison-table {
     font-size: 0.85rem;
+    overflow-x: auto;
   }
   
   .comparison-table th,
   .comparison-table td {
     padding: 0.5rem;
+  }
+  
+  /* Evidence cards */
+  .evidence-card {
+    padding: 1rem;
+  }
+  
+  .evidence-card h4 {
+    font-size: 1rem;
+  }
+  
+  /* Summary stats */
+  .summary-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .stat-box {
+    padding: 0.75rem;
+  }
+  
+  /* Form inputs */
+  .address-input,
+  .evidence-type-select {
+    font-size: 16px; /* Prevents iOS zoom */
   }
 }
 
