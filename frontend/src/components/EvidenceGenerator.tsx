@@ -146,11 +146,16 @@ const EvidenceGenerator: React.FC = () => {
       setProgress('📊 Building transaction graph and fund flow analysis...');
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Generate consistent wallet addresses for graph
+      const wallet1 = '0x' + Math.random().toString(16).substr(2, 40);
+      const wallet2 = '0x' + Math.random().toString(16).substr(2, 40);
+      const wallet3 = '0x' + Math.random().toString(16).substr(2, 40);
+      
       // Create sample fund flow data
       evidence.fundFlowAnalysis = [
         {
           from: address,
-          to: '0x' + Math.random().toString(16).substr(2, 40),
+          to: wallet1,
           amount: parseFloat((Math.random() * 5).toFixed(4)),
           timestamp: Date.now() / 1000,
           signature: '0x' + Math.random().toString(16).substr(2, 64),
@@ -166,7 +171,7 @@ const EvidenceGenerator: React.FC = () => {
         },
         {
           from: zkProtocols.tornadoCash,
-          to: '0x' + Math.random().toString(16).substr(2, 40),
+          to: wallet2,
           amount: parseFloat((Math.random() * 9).toFixed(4)),
           timestamp: Date.now() / 1000 + 7200,
           signature: '0x' + Math.random().toString(16).substr(2, 64),
@@ -174,17 +179,20 @@ const EvidenceGenerator: React.FC = () => {
         }
       ];
 
-      // Create graph data for visualization
+      // Create graph data for visualization - MUST match fundFlowAnalysis addresses
       evidence.graphData = {
         nodes: [
           { address: address, label: 'Target Address', riskScore: 65, type: 'target' },
           { address: zkProtocols.tornadoCash, label: 'Tornado Cash', riskScore: 85, type: 'mixer' },
-          { address: '0x' + Math.random().toString(16).substr(2, 40), label: 'Unknown Wallet 1', riskScore: 45, type: 'wallet' },
-          { address: '0x' + Math.random().toString(16).substr(2, 40), label: 'Unknown Wallet 2', riskScore: 55, type: 'wallet' }
+          { address: wallet1, label: 'Unknown Wallet 1', riskScore: 45, type: 'wallet' },
+          { address: wallet2, label: 'Unknown Wallet 2', riskScore: 55, type: 'wallet' },
+          { address: wallet3, label: 'Unknown Wallet 3', riskScore: 50, type: 'wallet' }
         ],
         edges: [
-          { source: address, target: zkProtocols.tornadoCash, amount: 10, timestamp: Date.now() / 1000 },
-          { source: zkProtocols.tornadoCash, target: '0x' + Math.random().toString(16).substr(2, 40), amount: 9.8, timestamp: Date.now() / 1000 + 3600 }
+          { source: address, target: wallet1, amount: 5, timestamp: Date.now() / 1000 },
+          { source: address, target: zkProtocols.tornadoCash, amount: 10, timestamp: Date.now() / 1000 - 3600 },
+          { source: zkProtocols.tornadoCash, target: wallet2, amount: 9.8, timestamp: Date.now() / 1000 + 7200 },
+          { source: wallet2, target: wallet3, amount: 8.5, timestamp: Date.now() / 1000 + 10800 }
         ]
       };
 
