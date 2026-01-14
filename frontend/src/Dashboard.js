@@ -170,11 +170,39 @@ export default function Dashboard() {
               {activeTab === 'dashboard' && (
                 <div>
                   <h2>Dashboard</h2>
+                  
+                  {/* Platform Statistics */}
+                  <div style={{ 
+                    background: 'rgba(138, 43, 226, 0.1)', 
+                    border: '1px solid rgba(138, 43, 226, 0.3)', 
+                    borderRadius: '12px', 
+                    padding: '1.5rem',
+                    marginBottom: '2rem'
+                  }}>
+                    <h3 style={{ color: '#da70d6', marginBottom: '1rem' }}>📊 Platform Statistics</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', fontWeight: '800', color: '#8a2be2' }}>783</div>
+                        <div style={{ color: '#9e9e9e', fontSize: '0.875rem' }}>Total Visitors</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', fontWeight: '800', color: '#8a2be2' }}>{cases.length}</div>
+                        <div style={{ color: '#9e9e9e', fontSize: '0.875rem' }}>Total Cases</div>
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '2rem', fontWeight: '800', color: '#8a2be2' }}>
+                          {connected ? '1' : '0'}
+                        </div>
+                        <div style={{ color: '#9e9e9e', fontSize: '0.875rem' }}>Active Users</div>
+                      </div>
+                    </div>
+                  </div>
+
                   {publicKey ? (
                     <div>
+                      <h3 style={{ marginBottom: '1rem' }}>Your Account</h3>
                       <p><strong>Address:</strong> {publicKey.toBase58()}</p>
                       <p><strong>Network:</strong> Devnet</p>
-                      <p><strong>Total Cases:</strong> {cases.length}</p>
                       <p><strong>Program:</strong> {program ? '✅ Connected' : '❌ Not loaded'}</p>
                       <p><strong>Validator Role:</strong> Can vote on cases</p>
                     </div>
