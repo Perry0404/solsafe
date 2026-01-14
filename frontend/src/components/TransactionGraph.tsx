@@ -60,7 +60,7 @@ const TransactionGraph: React.FC<TransactionGraphProps> = ({
     // Force simulation - stronger forces for better separation
     const simulation = d3.forceSimulation(nodes as any)
       .force('link', d3.forceLink(edges)
-        .id((d: any) => d.id)
+        .id((d: any) => d.address) // Changed from d.id to d.address
         .distance(200)) // Increased from 150
       .force('charge', d3.forceManyBody().strength(-600)) // Increased from -400
       .force('center', d3.forceCenter(width / 2, height / 2))
