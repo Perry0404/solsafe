@@ -192,42 +192,9 @@ const EvidenceGenerator: React.FC = () => {
       const qualityScore = calculateQualityScore(evidence);
       evidence.qualityScore = qualityScore;
 
-      // 13. Upload to IPFS
-      setProgress('Uploading comprehensive evidence to IPFS...');
-      const evidenceJson = JSON.stringify(evidence, null, 2);
-      const added = await ipfs.add(evidenceJson);
-      evidence.ipfsHash = added.path;
-
-      // 14. **QUANTUM-RESISTANT: Upload to Arweave for permanent storage**
-      setProgress('🔒 Creating quantum-resistant backup on Arweave...');
-      try {
-        const arweaveTxId = await uploadViaBundlr(evidence);
-        evidence.arweaveTxId = arweaveTxId;
-        console.log('✅ Permanent backup created:', arweaveTxId);
-      } catch (arweaveError) {
-        console.warn('⚠️ Arweave upload failed, continuing with IPFS only:', arweaveError);
-        evidence.arweaveTxId = 'pending'; // Will retry later
-      }
-
-      // 15. **QUANTUM-RESISTANT: Build Merkle tree for tamper detection**
-      setProgress('🔒 Building cryptographic Merkle proof...');
-      const evidenceComponents = [
-        evidence.scamAddress,
-        JSON.stringify(evidence.transactionSignatures),
-        JSON.stringify(evidence.victimTransactions),
-        evidence.mlRiskScore?.toString() || '0',
-        evidence.timestamp.toString(),
-      ];
-      const { root: merkleRoot } = buildMerkleTree(evidenceComponents);
-      evidence.merkleRoot = merkleRoot;
-
-      // 16. **QUANTUM-RESISTANT: Compute SHA3-256 hash**
-      setProgress('🔒 Computing quantum-resistant hash (SHA3-256)...');
-      const evidenceHash = hashEvidence(evidence);
-      evidence.evidenceHash = evidenceHash;
-
+      // Show evidence preview BEFORE uploading
       setGeneratedEvidence(evidence);
-      setProgress('✅ Advanced evidence generation complete with quantum protection!');
+      setProgress('✅ Analysis complete! Review evidence below and click "Upload to Blockchain" when ready.');
       setLoading(false);
 
     } catch (error: any) {
@@ -317,20 +284,51 @@ const EvidenceGenerator: React.FC = () => {
     }
 
     try {
-      setProgress('Preparing quantum-resistant submission...');
+      setLoading(true);
+      setProgress('Uploading evidence to IPFS...');
       
-      // Ensure we have all quantum-resistant components
-      if (!generatedEvidence.ipfsHash || !generatedEvidence.arweaveTxId) {
-        throw new Error('Evidence must be uploaded to IPFS and Arweave first');
-      }
-      
-      if (!generatedEvidence.merkleRoot || !generatedEvidence.evidenceHash) {
-        throw new Error('Quantum-resistant cryptographic proofs missing');
+      // Upload to IPFS
+      const evidenceJson = JSON.stringify(generatedEvidence, null, 2);
+      const added = await ipfs.add(evidenceJson);
+      const ipfsHash = added.path;
+
+      setProgress('🔒 Creating permanent backup on Arweave...');
+      // Upload to Arweave for permanent storage
+      let arweaveTxId = 'pending';
+      try {
+        arweaveTxId = await uploadViaBundlr(generatedEvidence);
+        console.log('✅ Permanent backup created:', arweaveTxId);
+      } catch (arweaveError) {
+        console.warn('⚠️ Arweave upload failed, continuing with IPFS only:', arweaveError);
       }
 
+      setProgress('🔒 Building cryptographic proofs...');
+      // Build Merkle tree for tamper detection
+      const evidenceComponents = [
+        generatedEvidence.scamAddress,
+        JSON.stringify(generatedEvidence.transactionSignatures),
+        JSON.stringify(generatedEvidence.victimTransactions),
+        generatedEvidence.mlRiskScore?.toString() || '0',
+        generatedEvidence.timestamp.toString(),
+      ];
+      const { root: merkleRoot } = buildMerkleTree(evidenceComponents);
+
+      // Compute SHA3-256 hash
+      const evidenceHash = hashEvidence(generatedEvidence);
+
+      // Update evidence with upload data
+      const updatedEvidence = {
+        ...generatedEvidence,
+        ipfsHash,
+        arweaveTxId,
+        merkleRoot,
+        evidenceHash
+      };
+      setGeneratedEvidence(updatedEvidence);
+
       // Convert Merkle root and evidence hash to arrays for smart contract
-      const merkleRootArray = Array.from(generatedEvidence.merkleRoot);
-      const evidenceHashArray = Array.from(generatedEvidence.evidenceHash);
+      const merkleRootArray = Array.from(merkleRoot);
+      const evidenceHashArray = Array.from(evidenceHash);
 
       setProgress('Calling smart contract submit_generated_evidence...');
       
@@ -338,8 +336,8 @@ const EvidenceGenerator: React.FC = () => {
       // const program = new Program(IDL, PROGRAM_ID, provider);
       // await program.methods
       //   .submitGeneratedEvidence(
-      //     generatedEvidence.ipfsHash,
-      //     generatedEvidence.arweaveTxId || '',
+      //     ipfsHash,
+      //     arweaveTxId || '',
       //     { [evidenceType]: {} }, // Convert to enum
       //     generatedEvidence.transactionSignatures.length,
       //     generatedEvidence.liquidityStatus.includes('removed'),
@@ -357,19 +355,21 @@ const EvidenceGenerator: React.FC = () => {
       //   })
       //   .rpc();
 
-      setProgress('✅ Quantum-resistant evidence submitted to blockchain!');
-      alert(`Evidence submitted successfully!\n\n` +
-        `IPFS: ${generatedEvidence.ipfsHash}\n` +
-        `Arweave: ${generatedEvidence.arweaveTxId}\n` +
+      setProgress('✅ Evidence uploaded to blockchain!');
+      setLoading(false);
+      alert(`Evidence uploaded successfully!\n\n` +
+        `IPFS: ${ipfsHash}\n` +
+        `Arweave: ${arweaveTxId}\n` +
         `Quality Score: ${generatedEvidence.qualityScore}/100\n` +
         `ML Risk Score: ${generatedEvidence.mlRiskScore || 0}/100\n\n` +
         `This evidence is now quantum-resistant and will remain valid for 10+ years!`
       );
 
     } catch (error: any) {
-      console.error('Contract submission failed:', error);
-      alert(`Submission failed: ${error.message}`);
-      setProgress(`❌ Submission error: ${error.message}`);
+      console.error('Upload failed:', error);
+      alert(`Upload failed: ${error.message}`);
+      setProgress(`❌ Upload error: ${error.message}`);
+      setLoading(false);
     }
   };
 
@@ -842,101 +842,6 @@ const EvidenceGenerator: React.FC = () => {
           <p className="upload-notice">⚠️ Once uploaded, evidence is permanent and cannot be deleted</p>
         </div>
       )}
-
-      <div className="info-section">
-        <h4>🚀 What Makes This Tool Revolutionary</h4>
-        <div className="feature-grid">
-          <div className="feature-item">
-            <h5>🤖 ML-Based Risk Scoring</h5>
-            <p>Trained on 10,000+ known scams. Automatically detects patterns that humans miss.</p>
-          </div>
-          <div className="feature-item">
-            <h5>🔓 ZK Transaction Tracing</h5>
-            <p><strong>Industry First:</strong> Traces "untraceable" zero-knowledge transactions using timing correlation, amount fingerprinting, and behavioral analysis.</p>
-          </div>
-          <div className="feature-item">
-            <h5>🕸️ Multi-Hop Fund Flow (5 Levels)</h5>
-            <p>Follows money through 500+ wallets, 5 hops deep. See exactly where stolen funds go.</p>
-          </div>
-          <div className="feature-item">
-            <h5>🎭 Scam Ring Detection</h5>
-            <p>Identifies coordinated wallet clusters. Exposes wash trading, sybil attacks, pump & dump groups.</p>
-          </div>
-          <div className="feature-item">
-            <h5>👤 Entity Resolution</h5>
-            <p>Connects multiple wallets to the same person. Reveals the mastermind behind scams.</p>
-          </div>
-          <div className="feature-item">
-            <h5>🎯 Pattern Matching (10K+ Signatures)</h5>
-            <p>Matches against known scam blueprints: rug pulls, honeypots, drainers, pump & dumps.</p>
-          </div>
-          <div className="feature-item">
-            <h5>📸 Pre-Movement Capture</h5>
-            <p>Captures evidence in real-time BEFORE scammers move funds. Traditional tools are always too late.</p>
-          </div>
-          <div className="feature-item">
-            <h5>📦 Immutable IPFS Storage</h5>
-            <p>All evidence cryptographically stored. Can't be edited or deleted. Court-ready proof.</p>
-          </div>
-        </div>
-        
-        <div className="benefits-section">
-          <h4>✨ Why SOLSAFE Evidence Generator is Different</h4>
-          <div className="benefits-grid">
-            <div className="benefit-card">
-              <h5>🎯 Multi-Chain Support</h5>
-              <p>Analyze wallets from Solana, Ethereum, BSC, Polygon, Avalanche, and more. One tool for all blockchains.</p>
-            </div>
-            <div className="benefit-card">
-              <h5>👁️ Preview Before Upload</h5>
-              <p>See all generated evidence, graphs, and analysis BEFORE uploading. Full transparency, no surprises.</p>
-            </div>
-            <div className="benefit-card">
-              <h5>🆓 Completely Free</h5>
-              <p>No subscriptions, no paid tiers. Open source and community-driven. Everyone deserves protection.</p>
-            </div>
-            <div className="benefit-card">
-              <h5>🔒 Quantum-Resistant</h5>
-              <p>Your evidence will remain valid for 10+ years, even after quantum computers arrive.</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="zk-tech-explanation">
-          <h4>🔬 How We Trace ZK Transactions (Technical Deep Dive)</h4>
-          <p>
-            Zero-knowledge proofs hide transaction details, but they can't hide everything. 
-            Our advanced analysis uses:
-          </p>
-          <ol>
-            <li>
-              <strong>Timing Correlation Analysis:</strong> ZK protocols have deterministic latency. 
-              We match entry timestamps to exit timestamps within 5-minute windows with 85%+ accuracy.
-            </li>
-            <li>
-              <strong>Amount Fingerprinting:</strong> Even encrypted amounts leave statistical signatures.
-              We use range proof analysis to estimate amounts within 5% margin.
-            </li>
-            <li>
-              <strong>Behavioral Pattern Matching:</strong> Users exhibit consistent behavior patterns.
-              Gas usage, transaction frequency, and wallet interactions create unique fingerprints.
-            </li>
-            <li>
-              <strong>Graph Topology Analysis:</strong> ZK pools are nodes in a graph. By analyzing
-              the shape of transactions around the pool, we identify likely linkages.
-            </li>
-            <li>
-              <strong>Pool Taint Analysis:</strong> When dirty money enters a ZK pool, it "taints" 
-              subsequent exits. We track taint propagation using Bayesian inference.
-            </li>
-          </ol>
-          <p className="zk-disclaimer">
-            <strong>Note:</strong> This is probabilistic, not deterministic. We provide confidence scores
-            (70-95%) because perfect deanonymization would break the ZK protocol's security guarantees.
-            We're transparent about uncertainty - unlike competitors who claim 100% accuracy.
-          </p>
-        </div>
-      </div>
     </div>
   );
 };
