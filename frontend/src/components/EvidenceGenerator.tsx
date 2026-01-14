@@ -197,6 +197,8 @@ const EvidenceGenerator: React.FC = () => {
       };
 
       console.log('✅ EVM Evidence generated:', evidence);
+      console.log('📊 Graph nodes:', evidence.graphData.nodes);
+      console.log('📊 Graph edges:', evidence.graphData.edges);
       setGeneratedEvidence(evidence);
       setProgress('✅ Multi-chain EVM analysis complete with ZK tracing!');
       setLoading(false);
@@ -794,7 +796,10 @@ const EvidenceGenerator: React.FC = () => {
           )}
 
           {/* Interactive Transaction Graph */}
-          {generatedEvidence.graphData && (
+          {generatedEvidence.graphData && 
+           generatedEvidence.graphData.nodes && 
+           generatedEvidence.graphData.nodes.length > 0 && 
+           generatedEvidence.graphData.edges && (
             <div className="evidence-card graph-container">
               <h4>🕸️ Interactive Fund Flow Visualization</h4>
               <p>
