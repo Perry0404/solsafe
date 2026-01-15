@@ -28,7 +28,7 @@ export default function Dashboard() {
   // Auto-fetch cases when wallet connects
   useEffect(() => {
     if (connected && program) {
-      console.log('ðŸ”„ Fetching cases on wallet connect...');
+      console.log('🔄 Fetching cases on wallet connect...');
       fetchCases();
     }
   }, [connected, program]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -58,7 +58,7 @@ export default function Dashboard() {
       const submitFn = usePrivacySubmit ? submitCaseWithPrivacy : submitCase;
       const tx = await submitFn(id, evidenceUrl, scamAddress, usePrivacySubmit);
       
-      const privacyMsg = usePrivacySubmit ? ' ðŸ” (Evidence encrypted with ZK proof)' : '';
+      const privacyMsg = usePrivacySubmit ? ' 🔐 (Evidence encrypted with ZK proof)' : '';
       setSubmitSuccess(`Case submitted successfully!${privacyMsg} Transaction: ${tx}`);
       
       // Reset form
@@ -81,7 +81,7 @@ export default function Dashboard() {
       const voteFn = usePrivacyVote ? voteWithPrivacy : voteOnCase;
       const tx = await voteFn(caseId, approve, usePrivacyVote);
       
-      const privacyMsg = usePrivacyVote ? ' ðŸ” (Private vote with ZK commitment)' : '';
+      const privacyMsg = usePrivacyVote ? ' 🔐 (Private vote with ZK commitment)' : '';
       alert(`Vote submitted successfully!${privacyMsg} Transaction: ${tx}`);
       await fetchCases();
     } catch (err) {
@@ -113,7 +113,7 @@ export default function Dashboard() {
             fontWeight: "600",
           }}
         >
-          â† Home
+          ← Home
         </Link>
 
         <div className="hero">
@@ -162,7 +162,7 @@ export default function Dashboard() {
             <div className="content">
               {!publicKey && (
                 <div className="notice">
-                  <h3>âš ï¸ Wallet Not Connected</h3>
+                  <h3>⚠️ Wallet Not Connected</h3>
                   <p>Please connect your Solana wallet using the button at the top right to use the dashboard.</p>
                 </div>
               )}
@@ -177,7 +177,7 @@ export default function Dashboard() {
                       <h3 style={{ marginBottom: '1rem' }}>Your Account</h3>
                       <p><strong>Address:</strong> {publicKey.toBase58()}</p>
                       <p><strong>Network:</strong> Devnet</p>
-                      <p><strong>Program:</strong> {program ? 'âœ… Connected' : 'âŒ Not loaded'}</p>
+                      <p><strong>Program:</strong> {program ? '✅ Connected' : '❌ Not loaded'}</p>
                       <p><strong>Validator Role:</strong> Can vote on cases</p>
                     </div>
                   ) : (
@@ -252,7 +252,7 @@ export default function Dashboard() {
                           style={{ marginRight: '10px', width: '18px', height: '18px', cursor: 'pointer' }}
                         />
                         <span style={{ fontWeight: 'bold', color: '#8a2be2' }}>
-                          ðŸ” Enable ZK Privacy (Encrypt Evidence)
+                          🔐 Enable ZK Privacy (Encrypt Evidence)
                         </span>
                       </label>
                       <small style={{ color: '#666', display: 'block', marginTop: '8px', marginLeft: '28px' }}>
@@ -332,7 +332,7 @@ export default function Dashboard() {
                         style={{ marginRight: '10px', width: '18px', height: '18px', cursor: 'pointer' }}
                       />
                       <span style={{ fontWeight: 'bold', color: '#8a2be2' }}>
-                        ðŸ” Enable Private Voting (ZK Commitment)
+                          🔐 Enable Private Voting (ZK Commitment)
                       </span>
                     </label>
                     <small style={{ color: '#666', display: 'block', marginTop: '8px', marginLeft: '28px' }}>
@@ -346,7 +346,7 @@ export default function Dashboard() {
                       onClick={() => selectedCaseId && handleVote(parseInt(selectedCaseId), true)}
                       disabled={!selectedCaseId}
                     >
-                      âœ… Vote Approve
+                      ✅ Vote Approve
                     </button>
                     <button
                       className="cta-button"
@@ -354,7 +354,7 @@ export default function Dashboard() {
                       onClick={() => selectedCaseId && handleVote(parseInt(selectedCaseId), false)}
                       disabled={!selectedCaseId}
                     >
-                      âŒ Vote Reject
+                      ❌ Vote Reject
                     </button>
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export default function Dashboard() {
       </main>
 
       <footer style={{ textAlign: 'center', padding: '40px 20px', marginTop: '60px' }}>
-        <p>Â© 2025 SolSafe. Powered by Solana & Switchboard VRF.</p>
+        <p>© 2025 SolSafe. Powered by Solana & Switchboard VRF.</p>
       </footer>
 
       <style>{`
