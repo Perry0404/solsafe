@@ -401,3 +401,6 @@ app.listen(PORT, () => {
   console.log(`Initial visitor count: ${readVisitorData().totalVisitors}`);
   console.log(`Tracking middleware enabled`);
 });
+
+// Export for Vercel serverless deployment
+export default app;
