@@ -1,24 +1,21 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
-import fs from 'fs';
-import path from 'path';
+import { put, head } from '@vercel/blob';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://www.solsafe.network'],
+  origin: ['http://localhost:3000', 'https://www.solsafe.network', 'https://solsafe.network'],
   credentials: true
 }));
 
 app.use(express.json());
 
-const VISITOR_FILE = path.join(__dirname, 'visitor-count.json');
-const SESSIONS_FILE = path.join(__dirname, 'visitor-sessions.json');
-
 interface VisitorData {
   totalVisitors: number;
   lastUpdated: string;
+  sessions: VisitorSession[];
 }
 
 interface VisitorSession {
@@ -28,129 +25,129 @@ interface VisitorSession {
   route: string;
 }
 
-function generateMockSessions(): VisitorSession[] {
-  const sessions: VisitorSession[] = [];
-  const routes = ['/', '/dashboard', '/docs', '/about'];
-  const userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
-  ];
-  
-  const now = Date.now();
-  const oneDayAgo = now - 24 * 60 * 60 * 1000;
-  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
-  
-  // Generate 70 sessions in last 24 hours
-  for (let i = 0; i < 70; i++) {
-    const timestamp = oneDayAgo + Math.random() * (now - oneDayAgo);
-    sessions.push({
-      sessionId: `session-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      timestamp: Math.floor(timestamp),
-      userAgent: userAgents[Math.floor(Math.random() * userAgents.length)],
-      route: routes[Math.floor(Math.random() * routes.length)]
-    });
-  }
-  
-  // Generate 713 sessions spread over past 30 days (783 - 70 = 713)
-  for (let i = 0; i < 713; i++) {
-    const timestamp = thirtyDaysAgo + Math.random() * (oneDayAgo - thirtyDaysAgo);
-    sessions.push({
-      sessionId: `session-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-      timestamp: Math.floor(timestamp),
-      userAgent: userAgents[Math.floor(Math.random() * userAgents.length)],
-      route: routes[Math.floor(Math.random() * routes.length)]
-    });
-  }
-  
-  // Sort by timestamp
-  return sessions.sort((a, b) => a.timestamp - b.timestamp);
-}
+const BLOB_URL = 'visitor-data.json';
 
-function readVisitorData(): VisitorData {
+// In-memory cache for faster reads (refreshed from blob on cold start)
+let dataCache: VisitorData = {
+  totalVisitors: 783,
+  lastUpdated: new Date().toISOString(),
+  sessions: []
+};
+
+// Read data from blob or use cached version
+async function getData(): Promise<VisitorData> {
   try {
-    if (fs.existsSync(VISITOR_FILE)) {
-      const data = fs.readFileSync(VISITOR_FILE, 'utf-8');
-      return JSON.parse(data);
+    // In production (Vercel), try to fetch from blob
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const blobHead = await head(BLOB_URL).catch(() => null);
+      if (blobHead) {
+        const response = await fetch(blobHead.url);
+        const data = await response.json();
+        dataCache = data;
+        return data;
+      }
     }
   } catch (error) {
-    console.error('Error reading visitor data:', error);
+    console.error('Error reading from blob:', error);
   }
-  return { totalVisitors: 783, lastUpdated: new Date().toISOString() };
+  return dataCache;
 }
 
-function writeVisitorData(data: VisitorData): void {
+// Write data to blob
+async function saveData(data: VisitorData): Promise<void> {
   try {
-    fs.writeFileSync(VISITOR_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error writing visitor data:', error);
-  }
-}
-
-function readSessions(): VisitorSession[] {
-  try {
-    if (fs.existsSync(SESSIONS_FILE)) {
-      const data = fs.readFileSync(SESSIONS_FILE, 'utf-8');
-      return JSON.parse(data);
+    dataCache = data;
+    
+    // In production, save to blob
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      await put(BLOB_URL, JSON.stringify(data), {
+        access: 'public',
+        contentType: 'application/json'
+      });
     }
   } catch (error) {
-    console.error('Error reading sessions:', error);
+    console.error('Error saving to blob:', error);
   }
-  return [];
 }
 
-function writeSessions(sessions: VisitorSession[]): void {
+// API endpoint to track visitors
+app.post('/api/visitors', async (req, res) => {
   try {
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessions, null, 2));
+    const { sessionId, route } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ error: 'Session ID is required' });
+    }
+
+    const data = await getData();
+    data.totalVisitors += 1;
+    data.lastUpdated = new Date().toISOString();
+    
+    const session: VisitorSession = {
+      sessionId,
+      timestamp: Date.now(),
+      userAgent: req.headers['user-agent'] || 'Unknown',
+      route: route || '/'
+    };
+
+    data.sessions.unshift(session);
+    
+    // Keep only last 1000 sessions
+    if (data.sessions.length > 1000) {
+      data.sessions = data.sessions.slice(0, 1000);
+    }
+
+    await saveData(data);
+
+    res.json({
+      count: data.totalVisitors,
+      lastUpdated: data.lastUpdated,
+      message: 'Visitor tracked successfully'
+    });
   } catch (error) {
-    console.error('Error writing sessions:', error);
+    console.error('Error tracking visitor:', error);
+    res.status(500).json({ error: 'Failed to track visitor' });
   }
-}
-
-// Initialize data if needed
-function initializeData() {
-  let sessions = readSessions();
-  if (sessions.length === 0) {
-    console.log('Generating mock session data...');
-    sessions = generateMockSessions();
-    writeSessions(sessions);
-    console.log(`Generated ${sessions.length} mock sessions`);
-  }
-  
-  const data = readVisitorData();
-  if (data.totalVisitors !== sessions.length) {
-    data.totalVisitors = sessions.length;
-    writeVisitorData(data);
-    console.log(`Updated visitor count to ${data.totalVisitors}`);
-  }
-}
-
-// Middleware to track page visits
-app.use((req, res, next) => {
-  if (req.path === '/api/health' || req.method === 'OPTIONS' || req.path === '/dashboard') {
-    return next();
-  }
-  
-  const sessionId = req.headers['x-session-id'] as string || `session-${Date.now()}-${Math.random()}`;
-  const userAgent = req.headers['user-agent'] || 'Unknown';
-  const route = req.path;
-  
-  console.log(`Visitor: ${route} | Session: ${sessionId.substring(0, 20)}...`);
-  
-  next();
 });
 
-// Dashboard HTML page
-app.get('/dashboard', (req, res) => {
-  const data = readVisitorData();
-  const sessions = readSessions();
-  
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const recentSessions = sessions.filter(s => s.timestamp > oneDayAgo);
-  const uniqueVisitors = new Set(recentSessions.map(s => s.sessionId)).size;
-  
-  const html = `
+// API endpoint to get visitor count
+app.get('/api/visitors', async (req, res) => {
+  try {
+    const data = await getData();
+    res.json({
+      totalVisitors: data.totalVisitors,
+      lastUpdated: data.lastUpdated
+    });
+  } catch (error) {
+    console.error('Error getting visitor data:', error);
+    res.status(500).json({ error: 'Failed to get visitor data' });
+  }
+});
+
+// API endpoint to get sessions
+app.get('/api/sessions', async (req, res) => {
+  try {
+    const data = await getData();
+    res.json({ sessions: data.sessions });
+  } catch (error) {
+    console.error('Error getting sessions:', error);
+    res.status(500).json({ error: 'Failed to get sessions' });
+  }
+});
+
+// Dashboard HTML endpoint
+app.get('/dashboard', async (req, res) => {
+  try {
+    const data = await getData();
+    
+    const now = Date.now();
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    
+    const recentSessions = data.sessions.filter(s => s.timestamp > oneDayAgo);
+    const recentCount = recentSessions.length;
+    const uniqueVisitors = new Set(recentSessions.map(s => s.sessionId)).size;
+
+    res.send(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -272,29 +269,29 @@ app.get('/dashboard', (req, res) => {
       <h1>🔐 SolSafe Analytics Dashboard</h1>
       <p>Real-time visitor tracking and analytics</p>
     </div>
-    
+
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value">${data.totalVisitors}</div>
         <div class="stat-label">Total Visitors</div>
       </div>
-      
+
       <div class="stat-card">
-        <div class="stat-value">${recentSessions.length}</div>
+        <div class="stat-value">${recentCount}</div>
         <div class="stat-label">Visits (24h)</div>
       </div>
-      
+
       <div class="stat-card">
         <div class="stat-value">${uniqueVisitors}</div>
         <div class="stat-label">Unique Visitors (24h)</div>
       </div>
-      
+
       <div class="stat-card">
-        <div class="stat-value">${sessions.length}</div>
+        <div class="stat-value">${data.sessions.length}</div>
         <div class="stat-label">Total Sessions</div>
       </div>
     </div>
-    
+
     <div class="sessions-table">
       <h2>📊 Recent Sessions (Last 50)</h2>
       <table>
@@ -307,21 +304,21 @@ app.get('/dashboard', (req, res) => {
           </tr>
         </thead>
         <tbody>
-          ${sessions.slice(-50).reverse().map(s => `
+          ${data.sessions.slice(0, 50).map(session => `
             <tr>
-              <td>${new Date(s.timestamp).toLocaleString()}</td>
-              <td>${s.route}</td>
-              <td>${s.sessionId.substring(0, 20)}...</td>
-              <td>${s.userAgent.substring(0, 60)}...</td>
+              <td>${new Date(session.timestamp).toLocaleString()}</td>
+              <td>${session.route}</td>
+              <td>${session.sessionId.substring(0, 20)}...</td>
+              <td>${session.userAgent.substring(0, 70)}...</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
-      
+
       <a href="/dashboard" class="refresh-btn">🔄 Refresh Dashboard</a>
     </div>
   </div>
-  
+
   <script>
     // Auto-refresh every 30 seconds
     setTimeout(() => {
@@ -330,77 +327,23 @@ app.get('/dashboard', (req, res) => {
   </script>
 </body>
 </html>
-  `;
-  
-  res.send(html);
-});
-
-app.get('/api/visitors', (req, res) => {
-  const data = readVisitorData();
-  res.json({
-    count: data.totalVisitors,
-    lastUpdated: data.lastUpdated
-  });
-});
-
-app.post('/api/visitors', (req, res) => {
-  const data = readVisitorData();
-  data.totalVisitors += 1;
-  data.lastUpdated = new Date().toISOString();
-  writeVisitorData(data);
-  
-  const sessions = readSessions();
-  const newSession: VisitorSession = {
-    sessionId: req.body.sessionId || `session-${Date.now()}`,
-    timestamp: Date.now(),
-    userAgent: req.headers['user-agent'] || 'Unknown',
-    route: req.body.route || '/'
-  };
-  
-  sessions.push(newSession);
-  
-  if (sessions.length > 1000) {
-    sessions.splice(0, sessions.length - 1000);
+    `);
+  } catch (error) {
+    console.error('Error rendering dashboard:', error);
+    res.status(500).send('Error loading dashboard');
   }
-  
-  writeSessions(sessions);
-  
-  res.json({
-    count: data.totalVisitors,
-    lastUpdated: data.lastUpdated,
-    message: 'Visitor tracked successfully'
+});
+
+// Only listen if not in Vercel serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, async () => {
+    console.log(`Visitor API server running on http://localhost:${PORT}`);
+    console.log(`Dashboard: http://localhost:${PORT}/dashboard`);
+    const data = await getData();
+    console.log(`Initial visitor count: ${data.totalVisitors}`);
+    console.log(`Tracking middleware enabled`);
   });
-});
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.get('/api/analytics', (req, res) => {
-  const data = readVisitorData();
-  const sessions = readSessions();
-  
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const recentSessions = sessions.filter(s => s.timestamp > oneDayAgo);
-  const uniqueVisitors = new Set(recentSessions.map(s => s.sessionId)).size;
-  
-  res.json({
-    totalVisitors: data.totalVisitors,
-    last24Hours: recentSessions.length,
-    uniqueVisitors24h: uniqueVisitors,
-    lastUpdated: data.lastUpdated
-  });
-});
-
-// Initialize data on startup
-initializeData();
-
-app.listen(PORT, () => {
-  console.log(`Visitor API server running on http://localhost:${PORT}`);
-  console.log(`Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`Initial visitor count: ${readVisitorData().totalVisitors}`);
-  console.log(`Tracking middleware enabled`);
-});
+}
 
 // Export for Vercel serverless deployment
 export default app;
