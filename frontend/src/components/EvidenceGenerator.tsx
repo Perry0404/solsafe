@@ -61,6 +61,11 @@ const EvidenceGenerator: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [generatedEvidence, setGeneratedEvidence] = useState<GeneratedEvidence | null>(null);
   const [progress, setProgress] = useState('');
+  
+  // Blockchain tracing states
+  const [selectedBlockchain, setSelectedBlockchain] = useState<'bitcoin' | 'litecoin' | 'solana' | 'ethereum'>('solana');
+  const [blockchainStats, setBlockchainStats] = useState<any>(null);
+  const [realTimeData, setRealTimeData] = useState(false);
 
   // Initialize IPFS client
   const ipfs = create({ 
@@ -68,6 +73,8 @@ const EvidenceGenerator: React.FC = () => {
     port: 5001, 
     protocol: 'https' 
   });
+
+  const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000';
 
   // Helper function to get correct explorer link based on address type
   const getExplorerLink = (txHash: string, addressType: 'evm' | 'solana' = 'solana') => {
@@ -210,6 +217,40 @@ const EvidenceGenerator: React.FC = () => {
     }
   };
 
+  // Fetch real blockchain data from our API
+  const fetchRealBlockchainData = async (blockchain: string, address: string) => {
+    try {
+      setProgress(`🌐 Fetching real ${blockchain.toUpperCase()} blockchain data...`);
+      const response = await fetch(`${API_URL}/api/trace/${blockchain}/${address}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        return {
+          addressInfo: data.addressInfo,
+          graphData: data.graph
+        };
+      } else {
+        throw new Error(data.message || 'Failed to fetch blockchain data');
+      }
+    } catch (error: any) {
+      console.error('Error fetching blockchain data:', error);
+      throw error;
+    }
+  };
+
+  // Fetch blockchain stats
+  const fetchBlockchainStats = async (blockchain: string) => {
+    try {
+      const response = await fetch(`${API_URL}/api/stats/${blockchain}`);
+      const data = await response.json();
+      if (data.success) {
+        setBlockchainStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   const generateEvidence = async () => {
     if (!scamAddress) {
       alert('Please enter the suspicious address');
@@ -226,11 +267,67 @@ const EvidenceGenerator: React.FC = () => {
       // Detect blockchain type
       const isEVM = scamAddress.startsWith('0x') && scamAddress.length === 42;
       const isSolana = !isEVM && scamAddress.length >= 32 && scamAddress.length <= 44;
+      const isBitcoin = scamAddress.startsWith('1') || scamAddress.startsWith('3') || scamAddress.startsWith('bc1');
+      const isLitecoin = scamAddress.startsWith('L') || scamAddress.startsWith('M') || scamAddress.startsWith('ltc1');
 
-      console.log('Blockchain detected:', { isEVM, isSolana });
+      console.log('Blockchain detected:', { isEVM, isSolana, isBitcoin, isLitecoin });
 
-      if (!isEVM && !isSolana) {
-        alert('Invalid address format. Please enter a valid Solana or EVM (Ethereum/BSC/Polygon) address.');
+      // If real-time data is enabled, fetch from API
+      if (realTimeData && (isBitcoin || isLitecoin)) {
+        const blockchain = isBitcoin ? 'bitcoin' : 'litecoin';
+        const realData = await fetchRealBlockchainData(blockchain, scamAddress);
+        
+        const evidence: GeneratedEvidence = {
+          scamAddress,
+          evidenceType,
+          transactionSignatures: realData.addressInfo.transactions.map(tx => tx.hash),
+          tokenBalances: [{ 
+            mint: blockchain.toUpperCase(), 
+            balance: realData.addressInfo.balance, 
+            decimals: 8 
+          }],
+          liquidityStatus: `Balance: ${realData.addressInfo.balance} ${blockchain === 'bitcoin' ? 'BTC' : 'LTC'}`,
+          fundFlowAnalysis: realData.addressInfo.transactions.slice(0, 10).map(tx => ({
+            from: tx.from,
+            to: tx.to,
+            amount: tx.value,
+            timestamp: tx.timestamp / 1000,
+            signature: tx.hash,
+            depth: 1
+          })),
+          victimTransactions: realData.addressInfo.transactions,
+          contractAnalysis: {
+            chain: blockchain === 'bitcoin' ? 'Bitcoin' : 'Litecoin',
+            totalReceived: realData.addressInfo.totalReceived,
+            totalSent: realData.addressInfo.totalSent,
+            txCount: realData.addressInfo.txCount
+          },
+          timestamp: Date.now(),
+          graphData: {
+            nodes: realData.graphData.nodes.map(n => ({
+              id: n.id,
+              label: n.label,
+              type: n.type as 'address' | 'transaction',
+              value: n.value,
+              group: n.group
+            })),
+            edges: realData.graphData.edges.map(e => ({
+              source: e.from,
+              target: e.to,
+              amount: e.value,
+              timestamp: Date.now() / 1000
+            }))
+          }
+        };
+        
+        setGeneratedEvidence(evidence);
+        setProgress(`✅ Real ${blockchain.toUpperCase()} data fetched successfully!`);
+        setLoading(false);
+        return;
+      }
+
+      if (!isEVM && !isSolana && !isBitcoin && !isLitecoin) {
+        alert('Invalid address format. Please enter a valid Bitcoin, Litecoin, Solana, or EVM address.');
         setLoading(false);
         return;
       }
@@ -542,11 +639,99 @@ const EvidenceGenerator: React.FC = () => {
 
   return (
     <div className="evidence-generator">
-      <h2>🔍 Advanced Evidence Generator</h2>
+      <h2>🔍 Advanced Evidence Generator & Blockchain Tracer</h2>
       <p className="subtitle">
-        Analyze any blockchain address from Solana, Ethereum, BSC, Polygon and more.
-        Generate evidence with ML risk scoring, fund flow analysis, and <strong>quantum-resistant</strong> storage.
+        Analyze any blockchain address from Bitcoin, Litecoin, Solana, Ethereum, BSC, Polygon and more.
+        Generate evidence with ML risk scoring, fund flow analysis, ZK tracing, and <strong>quantum-resistant</strong> storage.
       </p>
+
+      {/* Blockchain Selector */}
+      <div className="blockchain-selector-container">
+        <div className="blockchain-selector">
+          <button 
+            className={selectedBlockchain === 'bitcoin' ? 'active' : ''}
+            onClick={() => { setSelectedBlockchain('bitcoin'); fetchBlockchainStats('bitcoin'); }}
+          >
+            ₿ Bitcoin
+          </button>
+          <button 
+            className={selectedBlockchain === 'litecoin' ? 'active' : ''}
+            onClick={() => { setSelectedBlockchain('litecoin'); fetchBlockchainStats('litecoin'); }}
+          >
+            Ł Litecoin
+          </button>
+          <button 
+            className={selectedBlockchain === 'solana' ? 'active' : ''}
+            onClick={() => { setSelectedBlockchain('solana'); fetchBlockchainStats('solana'); }}
+          >
+            ◎ Solana
+          </button>
+          <button 
+            className={selectedBlockchain === 'ethereum' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('ethereum')}
+          >
+            Ξ Ethereum
+          </button>
+        </div>
+        
+        <div className="real-time-toggle">
+          <label>
+            <input 
+              type="checkbox" 
+              checked={realTimeData} 
+              onChange={(e) => setRealTimeData(e.target.checked)}
+            />
+            <span className="toggle-label">🌐 Use Real-Time Blockchain Data</span>
+          </label>
+          <p className="toggle-hint">Enable to fetch live data from {selectedBlockchain.toUpperCase()} blockchain</p>
+        </div>
+      </div>
+
+      {/* Blockchain Stats Bar */}
+      {blockchainStats && (
+        <div className="blockchain-stats-bar">
+          {selectedBlockchain === 'bitcoin' && (
+            <>
+              <div className="stat-item">
+                <span className="stat-label">BTC Price</span>
+                <span className="stat-value">${blockchainStats.marketPrice?.toLocaleString()}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Total Blocks</span>
+                <span className="stat-value">{blockchainStats.totalBlocks?.toLocaleString()}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Hash Rate</span>
+                <span className="stat-value">{(blockchainStats.hashRate / 1000000000).toFixed(2)} EH/s</span>
+              </div>
+            </>
+          )}
+          {selectedBlockchain === 'litecoin' && (
+            <>
+              <div className="stat-item">
+                <span className="stat-label">Last Block</span>
+                <span className="stat-value">{blockchainStats.lastBlock?.toLocaleString()}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Network Peers</span>
+                <span className="stat-value">{blockchainStats.peersConnected}</span>
+              </div>
+            </>
+          )}
+          {selectedBlockchain === 'solana' && (
+            <>
+              <div className="stat-item">
+                <span className="stat-label">Current Slot</span>
+                <span className="stat-value">{blockchainStats.currentSlot?.toLocaleString()}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">TPS</span>
+                <span className="stat-value">{blockchainStats.tps?.toFixed(0)}</span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="generator-form">
         <div className="form-group">

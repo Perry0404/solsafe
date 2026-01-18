@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { put, head } from '@vercel/blob';
-import blockchainTracer from './blockchain-tracer';
+import { kv } from '@vercel/kv';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -13,13 +12,9 @@ app.use(cors({
 
 app.use(express.json());
 
-// Mount blockchain tracer routes
-app.use(blockchainTracer);
-
 interface VisitorData {
   totalVisitors: number;
   lastUpdated: string;
-  sessions: VisitorSession[];
 }
 
 interface VisitorSession {
@@ -29,48 +24,64 @@ interface VisitorSession {
   route: string;
 }
 
-const BLOB_URL = 'visitor-data.json';
-
-// In-memory cache for faster reads (refreshed from blob on cold start)
-let dataCache: VisitorData = {
-  totalVisitors: 783,
-  lastUpdated: new Date().toISOString(),
-  sessions: []
-};
-
-// Read data from blob or use cached version
-async function getData(): Promise<VisitorData> {
+// Initialize data in KV if not exists
+async function initializeData() {
   try {
-    // In production (Vercel), try to fetch from blob
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blobHead = await head(BLOB_URL).catch(() => null);
-      if (blobHead) {
-        const response = await fetch(blobHead.url);
-        const data = await response.json();
-        dataCache = data;
-        return data;
-      }
+    const existingCount = await kv.get<number>('totalVisitors');
+    if (existingCount === null) {
+      await kv.set('totalVisitors', 783);
+      await kv.set('lastUpdated', new Date().toISOString());
+      console.log('Initialized visitor count to 783');
     }
   } catch (error) {
-    console.error('Error reading from blob:', error);
+    console.error('Error initializing data:', error);
   }
-  return dataCache;
 }
 
-// Write data to blob
-async function saveData(data: VisitorData): Promise<void> {
+// Read visitor data from KV
+async function readVisitorData(): Promise<VisitorData> {
   try {
-    dataCache = data;
-    
-    // In production, save to blob
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      await put(BLOB_URL, JSON.stringify(data), {
-        access: 'public',
-        contentType: 'application/json'
-      });
-    }
+    const totalVisitors = await kv.get<number>('totalVisitors') || 783;
+    const lastUpdated = await kv.get<string>('lastUpdated') || new Date().toISOString();
+    return { totalVisitors, lastUpdated };
   } catch (error) {
-    console.error('Error saving to blob:', error);
+    console.error('Error reading visitor data:', error);
+    return { totalVisitors: 783, lastUpdated: new Date().toISOString() };
+  }
+}
+
+// Write visitor data to KV
+async function writeVisitorData(data: VisitorData): Promise<void> {
+  try {
+    await kv.set('totalVisitors', data.totalVisitors);
+    await kv.set('lastUpdated', data.lastUpdated);
+  } catch (error) {
+    console.error('Error writing visitor data:', error);
+  }
+}
+
+// Save session to KV
+async function saveSession(session: VisitorSession): Promise<void> {
+  try {
+    const sessions = await kv.get<VisitorSession[]>('sessions') || [];
+    sessions.unshift(session);
+    // Keep only last 1000 sessions
+    if (sessions.length > 1000) {
+      sessions.length = 1000;
+    }
+    await kv.set('sessions', sessions);
+  } catch (error) {
+    console.error('Error saving session:', error);
+  }
+}
+
+// Get all sessions from KV
+async function getSessions(): Promise<VisitorSession[]> {
+  try {
+    return await kv.get<VisitorSession[]>('sessions') || [];
+  } catch (error) {
+    console.error('Error getting sessions:', error);
+    return [];
   }
 }
 
@@ -83,10 +94,12 @@ app.post('/api/visitors', async (req, res) => {
       return res.status(400).json({ error: 'Session ID is required' });
     }
 
-    const data = await getData();
+    const data = await readVisitorData();
     data.totalVisitors += 1;
     data.lastUpdated = new Date().toISOString();
     
+    await writeVisitorData(data);
+
     const session: VisitorSession = {
       sessionId,
       timestamp: Date.now(),
@@ -94,14 +107,7 @@ app.post('/api/visitors', async (req, res) => {
       route: route || '/'
     };
 
-    data.sessions.unshift(session);
-    
-    // Keep only last 1000 sessions
-    if (data.sessions.length > 1000) {
-      data.sessions = data.sessions.slice(0, 1000);
-    }
-
-    await saveData(data);
+    await saveSession(session);
 
     res.json({
       count: data.totalVisitors,
@@ -117,11 +123,8 @@ app.post('/api/visitors', async (req, res) => {
 // API endpoint to get visitor count
 app.get('/api/visitors', async (req, res) => {
   try {
-    const data = await getData();
-    res.json({
-      totalVisitors: data.totalVisitors,
-      lastUpdated: data.lastUpdated
-    });
+    const data = await readVisitorData();
+    res.json(data);
   } catch (error) {
     console.error('Error getting visitor data:', error);
     res.status(500).json({ error: 'Failed to get visitor data' });
@@ -131,8 +134,8 @@ app.get('/api/visitors', async (req, res) => {
 // API endpoint to get sessions
 app.get('/api/sessions', async (req, res) => {
   try {
-    const data = await getData();
-    res.json({ sessions: data.sessions });
+    const sessions = await getSessions();
+    res.json({ sessions });
   } catch (error) {
     console.error('Error getting sessions:', error);
     res.status(500).json({ error: 'Failed to get sessions' });
@@ -142,12 +145,13 @@ app.get('/api/sessions', async (req, res) => {
 // Dashboard HTML endpoint
 app.get('/dashboard', async (req, res) => {
   try {
-    const data = await getData();
+    const data = await readVisitorData();
+    const sessions = await getSessions();
     
     const now = Date.now();
     const oneDayAgo = now - 24 * 60 * 60 * 1000;
     
-    const recentSessions = data.sessions.filter(s => s.timestamp > oneDayAgo);
+    const recentSessions = sessions.filter(s => s.timestamp > oneDayAgo);
     const recentCount = recentSessions.length;
     const uniqueVisitors = new Set(recentSessions.map(s => s.sessionId)).size;
 
@@ -291,7 +295,7 @@ app.get('/dashboard', async (req, res) => {
       </div>
 
       <div class="stat-card">
-        <div class="stat-value">${data.sessions.length}</div>
+        <div class="stat-value">${sessions.length}</div>
         <div class="stat-label">Total Sessions</div>
       </div>
     </div>
@@ -308,7 +312,7 @@ app.get('/dashboard', async (req, res) => {
           </tr>
         </thead>
         <tbody>
-          ${data.sessions.slice(0, 50).map(session => `
+          ${sessions.slice(0, 50).map(session => `
             <tr>
               <td>${new Date(session.timestamp).toLocaleString()}</td>
               <td>${session.route}</td>
@@ -338,12 +342,15 @@ app.get('/dashboard', async (req, res) => {
   }
 });
 
+// Initialize data on startup
+initializeData();
+
 // Only listen if not in Vercel serverless environment
 if (process.env.VERCEL !== '1') {
   app.listen(PORT, async () => {
     console.log(`Visitor API server running on http://localhost:${PORT}`);
     console.log(`Dashboard: http://localhost:${PORT}/dashboard`);
-    const data = await getData();
+    const data = await readVisitorData();
     console.log(`Initial visitor count: ${data.totalVisitors}`);
     console.log(`Tracking middleware enabled`);
   });
