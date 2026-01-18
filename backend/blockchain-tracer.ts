@@ -114,6 +114,138 @@ interface IntelligenceAnalysis {
   suspiciousPatterns: string[];
 }
 
+interface MoneroCorrelation {
+  conversionTimestamp?: number;
+  lastKnownChain?: string;
+  lastKnownAddress?: string;
+  estimatedAmount?: number;
+  possibleExchange?: string;
+  timingPatterns: string[];
+  investigationLeads: string[];
+  crossChainMatches: Array<{
+    chain: string;
+    address: string;
+    amount: number;
+    timestamp: number;
+    confidence: number;
+  }>;
+}
+
+/**
+ * Advanced Monero Correlation: Timing Pattern Analysis
+ */
+function analyzeTimingPatterns(xmrAddress: string, contextData?: any): string[] {
+  const patterns: string[] = [];
+  
+  // Check if we have context about when funds entered Monero
+  if (contextData?.conversionTimestamp) {
+    const timeSinceConversion = Date.now() - contextData.conversionTimestamp;
+    const hours = Math.floor(timeSinceConversion / (1000 * 60 * 60));
+    patterns.push(`Time since suspected conversion: ${hours} hours`);
+    
+    if (hours < 24) {
+      patterns.push('⚡ URGENT: Recent conversion (<24h) - Monitor exchanges for cash-out');
+    }
+  }
+  
+  return patterns;
+}
+
+/**
+ * Advanced Monero Correlation: Amount Pattern Matching
+ */
+function analyzeAmountPatterns(inputAmount: number): string[] {
+  const leads: string[] = [];
+  
+  // Round amounts are suspicious (money laundering tactic)
+  if (inputAmount % 1 === 0 && inputAmount >= 100) {
+    leads.push(`🔍 Suspicious: Round amount (${inputAmount}) - Typical laundering pattern`);
+  }
+  
+  // Large amounts
+  if (inputAmount > 100) {
+    leads.push(`🐋 Large conversion: ${inputAmount} units - Flag exchanges for similar withdrawals`);
+  }
+  
+  return leads;
+}
+
+/**
+ * Advanced Monero Correlation: Exchange Monitoring
+ */
+function generateExchangeMonitoringLeads(amount: number): string[] {
+  const knownXMRExchanges = [
+    'Binance (KYC required)',
+    'Kraken (KYC required)',
+    'KuCoin (Limited KYC)',
+    'TradeOgre (No KYC - high risk)',
+    'Bitfinex (KYC required)',
+    'Poloniex (KYC required)'
+  ];
+  
+  return [
+    '💱 Monitor these exchanges for XMR→Fiat conversions:',
+    ...knownXMRExchanges.map(ex => `   • ${ex}`),
+    '',
+    '📋 Request from exchanges:',
+    `   • All XMR withdrawals ~${amount} units ±10%`,
+    '   • Timestamp correlation (within 1-24 hours)',
+    '   • Destination addresses and KYC info',
+    '   • IP addresses used for withdrawal'
+  ];
+}
+
+/**
+ * Advanced Monero Correlation: Cross-Chain Pattern Detection
+ */
+function detectCrossChainPatterns(xmrAmount: number, timestamp: number): string[] {
+  const patterns: string[] = [];
+  
+  // Look for similar amounts on transparent chains
+  patterns.push('🔗 Cross-Chain Analysis Strategy:');
+  patterns.push(`   1. Monitor Bitcoin/Ethereum for deposits ~${xmrAmount} BTC/ETH within 24-72h`);
+  patterns.push('   2. Check for new wallet addresses created around conversion time');
+  patterns.push('   3. Look for immediate deposits to exchanges (cash-out attempt)');
+  patterns.push('   4. Track large DEX swaps matching amount + timing');
+  patterns.push('   5. Monitor NFT marketplaces for high-value laundering');
+  
+  return patterns;
+}
+
+/**
+ * Advanced Monero Correlation: Statistical Analysis
+ */
+function performStatisticalAnalysis(xmrAddress: string): string[] {
+  return [
+    '📊 Statistical Investigation Approach:',
+    '',
+    '1. Ring Signature Analysis:',
+    '   • Monero uses 16 decoy outputs per transaction',
+    '   • Statistical timing attacks may reduce anonymity set',
+    '   • Research: "Flashlight" attack (2019) revealed some patterns',
+    '',
+    '2. Network Timing Analysis:',
+    '   • Monitor Monero node connections',
+    '   • Correlate transaction broadcast times',
+    '   • May narrow down originating region/timezone',
+    '',
+    '3. Exchange Flow Analysis:',
+    '   • 90% of XMR eventually touches KYC exchanges',
+    '   • Monitor all major exchanges for similar amounts',
+    '   • Timing correlation can link transactions',
+    '',
+    '4. Blockchain Metadata:',
+    '   • Transaction fees may indicate wallet software',
+    '   • Ring size changes over time (fingerprinting)',
+    '   • Transaction timing patterns (human behavior)',
+    '',
+    '⚖️ Legal Options:',
+    '   • Court order for exchange data',
+    '   • Request Monero view keys from suspect (if caught)',
+    '   • International law enforcement cooperation (Interpol)'
+  ];
+}
+
 /**
  * Advanced Intelligence: Label addresses with known entities
  */
@@ -1282,20 +1414,52 @@ router.get('/api/trace/monero/:address', async (req, res) => {
         }
       ];
 
+      // ADVANCED: Provide correlation analysis and investigation leads
+      const contextAmount = parseFloat(req.query.amount as string) || 0;
+      const contextTimestamp = parseInt(req.query.timestamp as string) || Date.now();
+      const sourceChain = req.query.sourceChain as string || 'unknown';
+      const sourceAddress = req.query.sourceAddress as string || '';
+      
+      const correlation: MoneroCorrelation = {
+        conversionTimestamp: contextTimestamp,
+        lastKnownChain: sourceChain,
+        lastKnownAddress: sourceAddress,
+        estimatedAmount: contextAmount,
+        timingPatterns: analyzeTimingPatterns(address, { conversionTimestamp: contextTimestamp }),
+        investigationLeads: [
+          ...analyzeAmountPatterns(contextAmount),
+          ...generateExchangeMonitoringLeads(contextAmount),
+          ...detectCrossChainPatterns(contextAmount, contextTimestamp),
+          ...performStatisticalAnalysis(address)
+        ],
+        crossChainMatches: [] // Would need database of recent large txs to populate
+      };
+      
       res.json({
         success: true,
         chain: 'monero',
         privacyLevel: 'maximum',
         privacyFeatures: [
-          'Ring Signatures - Mixins hide true sender',
+          'Ring Signatures - Mixins hide true sender (16 decoys)',
           'Stealth Addresses - One-time addresses for each transaction',
           'RingCT - Hidden transaction amounts',
           'Dandelion++ - IP address protection'
         ],
         addressInfo,
         graph: { nodes, edges: [] },
+        correlation, // NEW: Advanced correlation analysis
         note: 'Monero (XMR) provides the highest level of privacy. Transaction details are encrypted and obfuscated by default. Public blockchain explorers cannot reveal sender, receiver, or amount information without private view keys.',
-        limitedData: true
+        limitedData: true,
+        investigationStrategy: [
+          '🔍 While direct tracing is impossible, correlation analysis can provide leads:',
+          '   1. Timing Analysis - When did funds enter/exit Monero?',
+          '   2. Exchange Monitoring - Track KYC exchanges for similar amounts',
+          '   3. Cross-Chain Correlation - Look for matching amounts on transparent chains',
+          '   4. Statistical Patterns - Analyze transaction timing and behavior',
+          '   5. Legal Action - Court orders for exchange data and view keys',
+          '',
+          '⚡ For $220M scam case: Contact Interpol, major exchanges, and blockchain forensics firms'
+        ]
       });
     }
 
