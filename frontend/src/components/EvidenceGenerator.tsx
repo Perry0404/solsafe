@@ -42,6 +42,22 @@ interface GeneratedEvidence {
   graphData?: { nodes: TransactionNode[]; edges: TransactionEdge[] };
   scamSignatureMatches?: Array<{ name: string; confidence: number }>;
   mlRiskScore?: number;
+  intelligence?: {
+    mixerUsage: boolean;
+    exchangeDeposits: string[];
+    mevBotActivity: boolean;
+    washTradingDetected: boolean;
+    rugPullRisk: number;
+    whaleActivity: boolean;
+    entities: Array<{
+      address: string;
+      name: string;
+      type: string;
+      risk: string;
+    }>;
+    riskFactors: string[];
+    suspiciousPatterns: string[];
+  };
 }
 
 interface FundFlow {
@@ -97,12 +113,13 @@ const EvidenceGenerator: React.FC = () => {
         throw new Error(data.message || 'Failed to fetch EVM data');
       }
       
-      const { addressInfo, graph } = data;
+      const { addressInfo, graph, intelligence } = data;
       
       const evidence: GeneratedEvidence = {
         scamAddress: address,
         evidenceType,
         transactionSignatures: addressInfo.transactions.map((tx: any) => tx.hash),
+        intelligence, // Add intelligence analysis from backend
         tokenBalances: [], // Will be populated from real token balances
         liquidityStatus: addressInfo.transactions.some((tx: any) => 
           tx.to.toLowerCase() === '0x0000000000000000000000000000000000000000'
@@ -183,6 +200,25 @@ const EvidenceGenerator: React.FC = () => {
       
       // Use REAL graph data from API
       evidence.graphData = graph;
+      
+      // Display intelligence findings
+      if (intelligence) {
+        if (intelligence.mixerUsage) {
+          setProgress('🚨 CRITICAL: Tornado Cash / Mixer usage detected!');
+        }
+        if (intelligence.mevBotActivity) {
+          setProgress('🤖 MEV Bot activity detected!');
+        }
+        if (intelligence.washTradingDetected) {
+          setProgress('🔄 Wash trading pattern detected!');
+        }
+        if (intelligence.whaleActivity) {
+          setProgress('🐋 Whale-level activity detected!');
+        }
+        if (intelligence.exchangeDeposits.length > 0) {
+          setProgress(`💱 Exchange deposits: ${intelligence.exchangeDeposits.join(', ')}`);
+        }
+      }
       
       // Build REAL fund flow analysis from transactions
       evidence.fundFlowAnalysis = addressInfo.transactions.slice(0, 10).map((tx: any, idx: number) => ({
@@ -652,6 +688,12 @@ const EvidenceGenerator: React.FC = () => {
             Ł Litecoin
           </button>
           <button 
+            className={selectedBlockchain === 'dogecoin' ? 'active' : ''}
+            onClick={() => { setSelectedBlockchain('dogecoin'); fetchBlockchainStats('dogecoin'); }}
+          >
+            Ð Dogecoin
+          </button>
+          <button 
             className={selectedBlockchain === 'solana' ? 'active' : ''}
             onClick={() => { setSelectedBlockchain('solana'); fetchBlockchainStats('solana'); }}
           >
@@ -662,6 +704,42 @@ const EvidenceGenerator: React.FC = () => {
             onClick={() => setSelectedBlockchain('ethereum')}
           >
             Ξ Ethereum
+          </button>
+          <button 
+            className={selectedBlockchain === 'bsc' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('bsc')}
+          >
+            🔶 BSC
+          </button>
+          <button 
+            className={selectedBlockchain === 'polygon' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('polygon')}
+          >
+            🟣 Polygon
+          </button>
+          <button 
+            className={selectedBlockchain === 'arbitrum' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('arbitrum')}
+          >
+            🔵 Arbitrum
+          </button>
+          <button 
+            className={selectedBlockchain === 'optimism' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('optimism')}
+          >
+            🔴 Optimism
+          </button>
+          <button 
+            className={selectedBlockchain === 'base' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('base')}
+          >
+            🔷 Base
+          </button>
+          <button 
+            className={selectedBlockchain === 'monero' ? 'active' : ''}
+            onClick={() => setSelectedBlockchain('monero')}
+          >
+            🔒 Monero
           </button>
         </div>
         
@@ -898,6 +976,120 @@ const EvidenceGenerator: React.FC = () => {
                 {generatedEvidence.mlRiskScore > 40 && generatedEvidence.mlRiskScore <= 60 && '⚡ MEDIUM RISK - Monitor Closely'}
                 {generatedEvidence.mlRiskScore <= 40 && '✅ LOW RISK - Normal Activity'}
               </p>
+            </div>
+          )}
+
+          {/* Advanced Intelligence Analysis - NEW */}
+          {generatedEvidence.intelligence && (
+            <div className="evidence-card intelligence-analysis">
+              <h4>🧠 Advanced Intelligence Analysis</h4>
+              
+              {/* Critical Risk Alerts */}
+              {(generatedEvidence.intelligence.mixerUsage || 
+                generatedEvidence.intelligence.rugPullRisk > 70 ||
+                generatedEvidence.intelligence.washTradingDetected ||
+                generatedEvidence.intelligence.mevBotActivity) && (
+                <div className="critical-alerts">
+                  <h5>🚨 Critical Risk Factors</h5>
+                  {generatedEvidence.intelligence.mixerUsage && (
+                    <div className="alert-item critical">
+                      <span className="alert-icon">🔐</span>
+                      <div>
+                        <strong>Tornado Cash / Mixer Usage Detected</strong>
+                        <p>This address has used privacy mixers to obscure fund sources</p>
+                      </div>
+                    </div>
+                  )}
+                  {generatedEvidence.intelligence.rugPullRisk > 70 && (
+                    <div className="alert-item critical">
+                      <span className="alert-icon">📉</span>
+                      <div>
+                        <strong>High Rug Pull Risk: {generatedEvidence.intelligence.rugPullRisk}%</strong>
+                        <p>Suspicious sell patterns and high outflow detected</p>
+                      </div>
+                    </div>
+                  )}
+                  {generatedEvidence.intelligence.washTradingDetected && (
+                    <div className="alert-item warning">
+                      <span className="alert-icon">🔄</span>
+                      <div>
+                        <strong>Wash Trading Pattern Detected</strong>
+                        <p>Repeated trades between same addresses (artificial volume)</p>
+                      </div>
+                    </div>
+                  )}
+                  {generatedEvidence.intelligence.mevBotActivity && (
+                    <div className="alert-item info">
+                      <span className="alert-icon">🤖</span>
+                      <div>
+                        <strong>MEV Bot Activity Detected</strong>
+                        <p>High-frequency DEX trading patterns identified</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Exchange Deposits */}
+              {generatedEvidence.intelligence.exchangeDeposits.length > 0 && (
+                <div className="intelligence-section">
+                  <h5>💱 Exchange Deposits Detected</h5>
+                  <div className="exchange-list">
+                    {generatedEvidence.intelligence.exchangeDeposits.map((exchange, i) => (
+                      <span key={i} className="exchange-badge">{exchange}</span>
+                    ))}
+                  </div>
+                  <p className="intelligence-note">Address has deposited funds to these exchanges</p>
+                </div>
+              )}
+
+              {/* Whale Activity */}
+              {generatedEvidence.intelligence.whaleActivity && (
+                <div className="intelligence-section">
+                  <h5>🐋 Whale Activity Detected</h5>
+                  <p>This address shows whale-level holdings or large transaction volumes</p>
+                </div>
+              )}
+
+              {/* Entity Labels */}
+              {generatedEvidence.intelligence.entities.length > 0 && (
+                <div className="intelligence-section">
+                  <h5>🏷️ Known Entity Interactions</h5>
+                  <div className="entity-list">
+                    {generatedEvidence.intelligence.entities.map((entity, i) => (
+                      <div key={i} className={`entity-item risk-${entity.risk}`}>
+                        <span className="entity-name">{entity.name}</span>
+                        <span className="entity-type">{entity.type}</span>
+                        <span className={`entity-risk risk-${entity.risk}`}>{entity.risk.toUpperCase()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Suspicious Patterns */}
+              {generatedEvidence.intelligence.suspiciousPatterns.length > 0 && (
+                <div className="intelligence-section">
+                  <h5>🎯 Suspicious Patterns</h5>
+                  <div className="pattern-tags">
+                    {generatedEvidence.intelligence.suspiciousPatterns.map((pattern, i) => (
+                      <span key={i} className="pattern-tag">{pattern}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Risk Factors Summary */}
+              {generatedEvidence.intelligence.riskFactors.length > 0 && (
+                <div className="intelligence-section">
+                  <h5>⚠️ Risk Factors</h5>
+                  <ul className="risk-factors-list">
+                    {generatedEvidence.intelligence.riskFactors.map((factor, i) => (
+                      <li key={i}>{factor}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
