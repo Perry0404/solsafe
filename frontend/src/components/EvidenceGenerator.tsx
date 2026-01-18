@@ -86,122 +86,113 @@ const EvidenceGenerator: React.FC = () => {
 
   const analyzeEVMAddress = async (address: string) => {
     try {
-      setProgress('🔗 Analyzing EVM address across Ethereum, BSC, Polygon...');
+      setProgress('🔗 Fetching REAL blockchain data from Ethereum...');
       
-      // Generate mock EVM transaction hashes
-      const mockTxCount = Math.floor(Math.random() * 30) + 10; // 10-40 transactions
-      const mockTransactions = Array.from({ length: mockTxCount }, () => 
-        '0x' + Math.random().toString(16).substr(2, 64)
-      );
+      // Fetch REAL EVM data from our blockchain API
+      const apiUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000';
+      const response = await fetch(`${apiUrl}/api/trace/evm/ethereum/${address}?limit=50`);
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to fetch EVM data');
+      }
+      
+      const { addressInfo, graph } = data;
       
       const evidence: GeneratedEvidence = {
         scamAddress: address,
         evidenceType,
-        transactionSignatures: mockTransactions,
-        tokenBalances: [
-          { mint: '0xdAC17F958D2ee523a2206206994597C13D831ec7', balance: Math.random() * 1000, decimals: 6 }, // Mock USDT
-          { mint: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', balance: Math.random() * 500, decimals: 6 }, // Mock USDC
-        ],
-        liquidityStatus: Math.random() > 0.5 ? '⚠️ CRITICAL: Liquidity removed detected' : 'No liquidity removal detected',
+        transactionSignatures: addressInfo.transactions.map((tx: any) => tx.hash),
+        tokenBalances: [], // Will be populated from real token balances
+        liquidityStatus: addressInfo.transactions.some((tx: any) => 
+          tx.to.toLowerCase() === '0x0000000000000000000000000000000000000000'
+        ) ? '⚠️ CRITICAL: Liquidity removed detected' : 'No liquidity removal detected',
         fundFlowAnalysis: [],
-        victimTransactions: Array.from({ length: Math.floor(Math.random() * 15) + 3 }, (_, i) => ({
-          signature: '0x' + Math.random().toString(16).substr(2, 64),
-          blockTime: Date.now() / 1000 - (i * 3600),
-          fee: Math.random() * 0.01,
-          accounts: Math.floor(Math.random() * 10) + 2
+        victimTransactions: addressInfo.transactions.slice(0, 15).map((tx: any) => ({
+          signature: tx.hash,
+          blockTime: tx.timestamp / 1000,
+          fee: tx.fee,
+          accounts: 2
         })),
         contractAnalysis: { 
-          chain: 'EVM (Ethereum/BSC/Polygon/zkSync/Arbitrum)',
-          isContract: Math.random() > 0.5,
-          hasVerifiedCode: Math.random() > 0.6
+          chain: 'EVM (Ethereum)',
+          balance: addressInfo.balance,
+          totalReceived: addressInfo.totalReceived,
+          totalSent: addressInfo.totalSent,
+          txCount: addressInfo.txCount
         },
         timestamp: Date.now(),
-        mlRiskScore: Math.floor(Math.random() * 40) + 50, // 50-90
-        qualityScore: Math.floor(Math.random() * 30) + 60, // 60-90
+        mlRiskScore: Math.min(100, Math.floor((addressInfo.totalSent / addressInfo.totalReceived) * 80)),
+        qualityScore: Math.min(100, Math.floor((addressInfo.txCount / 100) * 90)),
         zkTraces: []
       };
 
-      // Detect ZK protocols on EVM chains
-      setProgress('🔓 Scanning for ZK protocol interactions (Tornado Cash, Aztec, zkSync, Railgun)...');
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Detect REAL ZK protocols interactions by checking transactions
+      setProgress('🔓 Scanning for REAL ZK protocol interactions (zkSync, Aztec, Railgun)...');
       
-      // Check for known ZK protocol addresses
       const zkProtocols = {
-        tornadoCash: '0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936', // Tornado Cash ETH
-        aztec: '0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba', // Aztec
-        railgun: '0xFA7093CDD9EE6932B4eb2c9e1cde7CE00B1FA4b9', // Railgun
-        zkSync: '0x32400084C286CF3E17e7B677ea9583e60a000324' // zkSync Era
+        tornadoCash: '0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936',
+        aztec: '0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba',
+        railgun: '0xFA7093CDD9EE6932B4eb2c9e1cde7CE00B1FA4b9',
+        zkSync: '0x32400084C286CF3E17e7B677ea9583e60a000324'
       };
 
-      // Simulate ZK detection
-      const hasZKInteraction = Math.random() > 0.3; // 70% chance to demonstrate ZK tracing
+      // Check if address interacted with ZK protocols
+      const zkInteractions = addressInfo.transactions.filter((tx: any) => 
+        Object.values(zkProtocols).some(protocol => 
+          tx.to?.toLowerCase() === protocol.toLowerCase() ||
+          tx.from?.toLowerCase() === protocol.toLowerCase()
+        )
+      );
       
-      if (hasZKInteraction) {
-        evidence.zkTraces = [
-          {
-            shieldedPoolAddress: zkProtocols.tornadoCash,
-            entryTransaction: '0x' + Math.random().toString(16).substr(2, 64),
-            exitTransaction: '0x' + Math.random().toString(16).substr(2, 64),
-            estimatedAmount: parseFloat((Math.random() * 10).toFixed(4)),
-            timingCorrelation: Math.floor(Math.random() * 25 + 70), // 70-95%
-            suspiciousPatterns: ['RAPID_ENTRY_EXIT', 'ROUND_AMOUNT'],
-            linkedAddresses: []
+      if (zkInteractions.length > 0) {
+        // Try to fetch REAL zkSync data
+        try {
+          const zkResponse = await fetch(`${apiUrl}/api/trace/zksync/${address}`);
+          const zkData = await zkResponse.json();
+          
+          if (zkData.success && zkData.addressInfo.transactions.length > 0) {
+            evidence.zkTraces = zkData.addressInfo.transactions.slice(0, 5).map((tx: any) => ({
+              shieldedPoolAddress: zkData.addressInfo.address,
+              entryTransaction: tx.hash,
+              exitTransaction: zkData.addressInfo.transactions.find((t: any) => 
+                t.timestamp > tx.timestamp && t.from === tx.to
+              )?.hash || tx.hash,
+              estimatedAmount: tx.value,
+              timingCorrelation: 85,
+              suspiciousPatterns: tx.value === Math.round(tx.value) ? ['ROUND_AMOUNT'] : [],
+              linkedAddresses: []
+            }));
           }
-        ];
+        } catch (zkError) {
+          console.warn('zkSync API failed, using detected ZK interactions:', zkError);
+          // Fallback to detected interactions
+          evidence.zkTraces = zkInteractions.slice(0, 3).map((tx: any) => ({
+            shieldedPoolAddress: tx.to,
+            entryTransaction: tx.hash,
+            exitTransaction: tx.hash,
+            estimatedAmount: tx.value,
+            timingCorrelation: 75,
+            suspiciousPatterns: ['ZK_PROTOCOL_INTERACTION'],
+            linkedAddresses: []
+          }));
+        }
       }
 
-      setProgress('📊 Building transaction graph and fund flow analysis...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setProgress('📊 Building transaction graph from REAL blockchain data...');
       
-      // Generate consistent wallet addresses for graph
-      const wallet1 = '0x' + Math.random().toString(16).substr(2, 40);
-      const wallet2 = '0x' + Math.random().toString(16).substr(2, 40);
-      const wallet3 = '0x' + Math.random().toString(16).substr(2, 40);
+      // Use REAL graph data from API
+      evidence.graphData = graph;
       
-      // Create sample fund flow data
-      evidence.fundFlowAnalysis = [
-        {
-          from: address,
-          to: wallet1,
-          amount: parseFloat((Math.random() * 5).toFixed(4)),
-          timestamp: Date.now() / 1000,
-          signature: '0x' + Math.random().toString(16).substr(2, 64),
-          depth: 0
-        },
-        {
-          from: address,
-          to: zkProtocols.tornadoCash,
-          amount: parseFloat((Math.random() * 10).toFixed(4)),
-          timestamp: Date.now() / 1000 - 3600,
-          signature: '0x' + Math.random().toString(16).substr(2, 64),
-          depth: 1
-        },
-        {
-          from: zkProtocols.tornadoCash,
-          to: wallet2,
-          amount: parseFloat((Math.random() * 9).toFixed(4)),
-          timestamp: Date.now() / 1000 + 7200,
-          signature: '0x' + Math.random().toString(16).substr(2, 64),
-          depth: 2
-        }
-      ];
-
-      // Create graph data for visualization - MUST match fundFlowAnalysis addresses
-      evidence.graphData = {
-        nodes: [
-          { address: address, label: 'Target Address', riskScore: 65, type: 'target' },
-          { address: zkProtocols.tornadoCash, label: 'Tornado Cash', riskScore: 85, type: 'mixer' },
-          { address: wallet1, label: 'Unknown Wallet 1', riskScore: 45, type: 'wallet' },
-          { address: wallet2, label: 'Unknown Wallet 2', riskScore: 55, type: 'wallet' },
-          { address: wallet3, label: 'Unknown Wallet 3', riskScore: 50, type: 'wallet' }
-        ],
-        edges: [
-          { source: address, target: wallet1, amount: 5, timestamp: Date.now() / 1000 },
-          { source: address, target: zkProtocols.tornadoCash, amount: 10, timestamp: Date.now() / 1000 - 3600 },
-          { source: zkProtocols.tornadoCash, target: wallet2, amount: 9.8, timestamp: Date.now() / 1000 + 7200 },
-          { source: wallet2, target: wallet3, amount: 8.5, timestamp: Date.now() / 1000 + 10800 }
-        ]
-      };
+      // Build REAL fund flow analysis from transactions
+      evidence.fundFlowAnalysis = addressInfo.transactions.slice(0, 10).map((tx: any, idx: number) => ({
+        from: tx.from,
+        to: tx.to,
+        amount: tx.value,
+        timestamp: tx.timestamp / 1000,
+        signature: tx.hash,
+        depth: idx < 3 ? 0 : idx < 7 ? 1 : 2
+      }));
 
       console.log('✅ EVM Evidence generated:', evidence);
       console.log('📊 Graph nodes:', evidence.graphData.nodes);

@@ -48,7 +48,7 @@ interface GraphData {
 
 const EvidenceGeneratorV2: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedChain, setSelectedChain] = useState<'bitcoin' | 'litecoin' | 'solana'>('solana');
+  const [selectedChain, setSelectedChain] = useState<'bitcoin' | 'litecoin' | 'solana' | 'ethereum' | 'bsc' | 'polygon' | 'zksync' | 'aztec'>('solana');
   const [loading, setLoading] = useState(false);
   const [addressData, setAddressData] = useState<BlockchainData | null>(null);
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
@@ -56,12 +56,14 @@ const EvidenceGeneratorV2: React.FC = () => {
   const [blockchainStats, setBlockchainStats] = useState<any>(null);
   const [trendingTokens] = useState<TrendingToken[]>([
     { symbol: 'SOL', name: 'Solana', volume: '$2.5B', marketCap: '$45B', price: '$108.50', change: 5.2, transfers: 145000 },
+    { symbol: 'ETH', name: 'Ethereum', volume: '$18B', marketCap: '$420B', price: '$3,500', change: 4.8, transfers: 1200000 },
     { symbol: 'BONK', name: 'Bonk', volume: '$89M', marketCap: '$1.2B', price: '$0.00002', change: 12.5, transfers: 89000 },
     { symbol: 'JUP', name: 'Jupiter', volume: '$156M', marketCap: '$2.8B', price: '$1.45', change: -2.3, transfers: 67000 },
   ]);
   const [featuredTokens] = useState<TrendingToken[]>([
     { symbol: 'BTC', name: 'Bitcoin', volume: '$45B', marketCap: '$1.2T', price: '$62,500', change: 3.1, transfers: 250000 },
     { symbol: 'LTC', name: 'Litecoin', volume: '$1.2B', marketCap: '$8.5B', price: '$115.20', change: 1.8, transfers: 45000 },
+    { symbol: 'MATIC', name: 'Polygon', volume: '$890M', marketCap: '$7.2B', price: '$0.95', change: 6.5, transfers: 156000 },
     { symbol: 'USDC', name: 'USD Coin', volume: '$8.9B', marketCap: '$32B', price: '$1.00', change: 0.01, transfers: 890000 },
   ]);
 
@@ -91,7 +93,19 @@ const EvidenceGeneratorV2: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/trace/${selectedChain}/${searchQuery}`);
+      // Determine API endpoint based on chain
+      let apiEndpoint = '';
+      if (['ethereum', 'bsc', 'polygon'].includes(selectedChain)) {
+        apiEndpoint = `${API_URL}/api/trace/evm/${selectedChain}/${searchQuery}`;
+      } else if (selectedChain === 'zksync') {
+        apiEndpoint = `${API_URL}/api/trace/zksync/${searchQuery}`;
+      } else if (selectedChain === 'aztec') {
+        apiEndpoint = `${API_URL}/api/trace/aztec/${searchQuery}`;
+      } else {
+        apiEndpoint = `${API_URL}/api/trace/${selectedChain}/${searchQuery}`;
+      }
+
+      const response = await fetch(apiEndpoint);
       const data = await response.json();
 
       if (data.success) {

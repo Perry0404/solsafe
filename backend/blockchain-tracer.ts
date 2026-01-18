@@ -1,6 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { ethers } from 'ethers';
 
 const router = express.Router();
 
@@ -8,6 +9,12 @@ const router = express.Router();
 const BLOCKCHAIN_INFO_API = 'https://blockchain.info';
 const BLOCKCYPHER_API = 'https://api.blockcypher.com/v1';
 const SOLANA_RPC = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || 'YourApiKeyToken';
+const ETHERSCAN_API = 'https://api.etherscan.io/api';
+const BSCSCAN_API = 'https://api.bscscan.com/api';
+const POLYGONSCAN_API = 'https://api.polygonscan.com/api';
+const ZKSYNC_API = 'https://block-explorer-api.mainnet.zksync.io/api';
+const AZTEC_API = 'https://api.aztec.network/aztec-connect-prod/falafel';
 
 interface Transaction {
   hash: string;
@@ -520,6 +527,434 @@ router.get('/api/stats/:chain', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch stats',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * Trace EVM address transactions (Ethereum, BSC, Polygon)
+ */
+router.get('/api/trace/evm/:chain/:address', async (req, res) => {
+  try {
+    const { chain, address } = req.params;
+    const limit = parseInt(req.query.limit as string) || 50;
+
+    let apiUrl = '';
+    let apiKey = ETHERSCAN_API_KEY;
+    
+    switch (chain.toLowerCase()) {
+      case 'ethereum':
+      case 'eth':
+        apiUrl = ETHERSCAN_API;
+        break;
+      case 'bsc':
+      case 'binance':
+        apiUrl = BSCSCAN_API;
+        break;
+      case 'polygon':
+      case 'matic':
+        apiUrl = POLYGONSCAN_API;
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          error: 'Unsupported EVM chain. Use: ethereum, bsc, or polygon'
+        });
+    }
+
+    // Fetch address balance
+    const balanceResponse = await axios.get(apiUrl, {
+      params: {
+        module: 'account',
+        action: 'balance',
+        address,
+        tag: 'latest',
+        apikey: apiKey
+      }
+    });
+
+    // Fetch transaction list
+    const txResponse = await axios.get(apiUrl, {
+      params: {
+        module: 'account',
+        action: 'txlist',
+        address,
+        startblock: 0,
+        endblock: 99999999,
+        page: 1,
+        offset: limit,
+        sort: 'desc',
+        apikey: apiKey
+      }
+    });
+
+    if (txResponse.data.status !== '1') {
+      throw new Error(txResponse.data.message || 'Failed to fetch transactions');
+    }
+
+    const balance = parseFloat(ethers.formatEther(balanceResponse.data.result || '0'));
+    const txList = txResponse.data.result || [];
+
+    // Calculate total received and sent
+    let totalReceived = 0;
+    let totalSent = 0;
+
+    const transactions: Transaction[] = txList.map((tx: any) => {
+      const value = parseFloat(ethers.formatEther(tx.value));
+      const isReceived = tx.to.toLowerCase() === address.toLowerCase();
+      
+      if (isReceived) {
+        totalReceived += value;
+      } else {
+        totalSent += value;
+      }
+
+      return {
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.to,
+        value,
+        timestamp: parseInt(tx.timeStamp) * 1000,
+        confirmations: tx.confirmations,
+        fee: parseFloat(ethers.formatEther((BigInt(tx.gasUsed) * BigInt(tx.gasPrice)).toString())),
+        blockHeight: parseInt(tx.blockNumber)
+      };
+    });
+
+    const addressInfo: AddressInfo = {
+      address,
+      balance,
+      totalReceived,
+      totalSent,
+      txCount: txList.length,
+      transactions
+    };
+
+    // Generate network graph
+    const nodes: NetworkNode[] = [
+      {
+        id: address,
+        label: `${address.substring(0, 8)}...`,
+        type: 'address',
+        value: balance,
+        group: 'central'
+      }
+    ];
+
+    const edges: NetworkEdge[] = [];
+    const uniqueAddresses = new Set<string>();
+
+    transactions.forEach((tx) => {
+      // Add transaction node
+      nodes.push({
+        id: tx.hash,
+        label: `Tx: ${tx.hash.substring(0, 8)}...`,
+        type: 'transaction',
+        value: tx.value,
+        group: 'transaction'
+      });
+
+      if (tx.from && !uniqueAddresses.has(tx.from)) {
+        uniqueAddresses.add(tx.from);
+        nodes.push({
+          id: tx.from,
+          label: `${tx.from.substring(0, 8)}...`,
+          type: 'address',
+          value: 0,
+          group: 'sender'
+        });
+      }
+
+      if (tx.to && !uniqueAddresses.has(tx.to)) {
+        uniqueAddresses.add(tx.to);
+        nodes.push({
+          id: tx.to,
+          label: `${tx.to.substring(0, 8)}...`,
+          type: 'address',
+          value: 0,
+          group: 'receiver'
+        });
+      }
+
+      edges.push({
+        from: tx.from,
+        to: tx.hash,
+        value: tx.value,
+        label: `${tx.value.toFixed(4)} ${chain.toUpperCase()}`
+      });
+
+      edges.push({
+        from: tx.hash,
+        to: tx.to,
+        value: tx.value,
+        label: ''
+      });
+    });
+
+    res.json({
+      success: true,
+      chain,
+      addressInfo,
+      graph: { nodes, edges }
+    });
+
+  } catch (error: any) {
+    console.error('EVM trace error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trace EVM address',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * Trace zkSync transactions (ZK Rollup)
+ */
+router.get('/api/trace/zksync/:address', async (req, res) => {
+  try {
+    const { address } = req.params;
+    const limit = parseInt(req.query.limit as string) || 50;
+
+    // Fetch zkSync account info
+    const accountResponse = await axios.get(`${ZKSYNC_API}`, {
+      params: {
+        module: 'account',
+        action: 'balance',
+        address
+      }
+    });
+
+    // Fetch zkSync transactions
+    const txResponse = await axios.get(`${ZKSYNC_API}`, {
+      params: {
+        module: 'account',
+        action: 'txlist',
+        address,
+        page: 1,
+        offset: limit,
+        sort: 'desc'
+      }
+    });
+
+    const balance = parseFloat(ethers.formatEther(accountResponse.data.result || '0'));
+    const txList = txResponse.data.result || [];
+
+    const transactions: Transaction[] = txList.map((tx: any) => ({
+      hash: tx.hash,
+      from: tx.from,
+      to: tx.to,
+      value: parseFloat(ethers.formatEther(tx.value)),
+      timestamp: parseInt(tx.timeStamp) * 1000,
+      confirmations: tx.confirmations || 0,
+      fee: parseFloat(ethers.formatEther(tx.fee || '0')),
+      blockHeight: parseInt(tx.blockNumber)
+    }));
+
+    // Generate network graph
+    const nodes: NetworkNode[] = [
+      {
+        id: address,
+        label: `zkSync: ${address.substring(0, 8)}...`,
+        type: 'address',
+        value: balance,
+        group: 'central'
+      }
+    ];
+
+    const edges: NetworkEdge[] = [];
+    const uniqueAddresses = new Set<string>();
+
+    transactions.forEach((tx) => {
+      nodes.push({
+        id: tx.hash,
+        label: `ZK Tx: ${tx.hash.substring(0, 8)}...`,
+        type: 'transaction',
+        value: tx.value,
+        group: 'transaction'
+      });
+
+      if (tx.from && !uniqueAddresses.has(tx.from)) {
+        uniqueAddresses.add(tx.from);
+        nodes.push({
+          id: tx.from,
+          label: `${tx.from.substring(0, 8)}...`,
+          type: 'address',
+          value: 0,
+          group: 'sender'
+        });
+      }
+
+      if (tx.to && !uniqueAddresses.has(tx.to)) {
+        uniqueAddresses.add(tx.to);
+        nodes.push({
+          id: tx.to,
+          label: `${tx.to.substring(0, 8)}...`,
+          type: 'address',
+          value: 0,
+          group: 'receiver'
+        });
+      }
+
+      edges.push({
+        from: tx.from,
+        to: tx.hash,
+        value: tx.value,
+        label: `${tx.value.toFixed(4)} ETH (ZK)`
+      });
+
+      edges.push({
+        from: tx.hash,
+        to: tx.to,
+        value: tx.value,
+        label: 'Private'
+      });
+    });
+
+    const addressInfo: AddressInfo = {
+      address,
+      balance,
+      totalReceived: 0,
+      totalSent: 0,
+      txCount: transactions.length,
+      transactions
+    };
+
+    res.json({
+      success: true,
+      chain: 'zksync',
+      zkPrivacy: true,
+      addressInfo,
+      graph: { nodes, edges }
+    });
+
+  } catch (error: any) {
+    console.error('zkSync trace error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trace zkSync address',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * Trace Aztec Network ZK transactions
+ */
+router.get('/api/trace/aztec/:address', async (req, res) => {
+  try {
+    const { address } = req.params;
+    
+    // Query Aztec Network for private transactions
+    const response = await axios.get(`${AZTEC_API}/account/${address}`);
+    
+    const accountData = response.data;
+    
+    const addressInfo: AddressInfo = {
+      address,
+      balance: accountData.balance || 0,
+      totalReceived: accountData.totalReceived || 0,
+      totalSent: accountData.totalSent || 0,
+      txCount: accountData.txCount || 0,
+      transactions: (accountData.transactions || []).map((tx: any) => ({
+        hash: tx.txHash || 'private',
+        from: 'Private (ZK)',
+        to: 'Private (ZK)',
+        value: tx.value || 0,
+        timestamp: tx.timestamp || Date.now(),
+        confirmations: tx.confirmations || 0,
+        fee: tx.fee || 0
+      }))
+    };
+
+    // Generate privacy-preserving graph
+    const nodes: NetworkNode[] = [
+      {
+        id: address,
+        label: `Aztec: ${address.substring(0, 8)}...`,
+        type: 'address',
+        value: addressInfo.balance,
+        group: 'central'
+      }
+    ];
+
+    const edges: NetworkEdge[] = [];
+
+    addressInfo.transactions.forEach((tx, idx) => {
+      nodes.push({
+        id: `zk-tx-${idx}`,
+        label: 'Private TX',
+        type: 'transaction',
+        value: tx.value,
+        group: 'transaction'
+      });
+
+      edges.push({
+        from: address,
+        to: `zk-tx-${idx}`,
+        value: tx.value,
+        label: 'ZK-SNARK Protected'
+      });
+    });
+
+    res.json({
+      success: true,
+      chain: 'aztec',
+      zkPrivacy: true,
+      privacyLevel: 'maximum',
+      addressInfo,
+      graph: { nodes, edges },
+      note: 'Aztec Network provides maximum privacy. Transaction details are encrypted with ZK-SNARKs.'
+    });
+
+  } catch (error: any) {
+    console.error('Aztec trace error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to trace Aztec address',
+      message: error.message,
+      note: 'Aztec Network is privacy-focused. Limited data may be available.'
+    });
+  }
+});
+
+/**
+ * Universal tracer - Auto-detect chain and trace
+ */
+router.get('/api/trace/auto/:address', async (req, res) => {
+  try {
+    const { address } = req.params;
+    
+    // Auto-detect chain based on address format
+    let chain = 'unknown';
+    
+    if (address.startsWith('0x') && address.length === 42) {
+      // EVM address
+      chain = 'ethereum';
+    } else if (address.length >= 26 && address.length <= 44 && !address.startsWith('0x')) {
+      // Solana address
+      chain = 'solana';
+    } else if (address.length === 34 && (address.startsWith('1') || address.startsWith('3') || address.startsWith('bc1'))) {
+      // Bitcoin address
+      chain = 'bitcoin';
+    } else if (address.length === 34 && (address.startsWith('L') || address.startsWith('M') || address.startsWith('ltc1'))) {
+      // Litecoin address
+      chain = 'litecoin';
+    }
+
+    res.json({
+      success: true,
+      detectedChain: chain,
+      address,
+      message: `Use /api/trace/${chain}/${address} for detailed tracing`
+    });
+
+  } catch (error: any) {
+    console.error('Auto-detect error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to detect chain',
       message: error.message
     });
   }
