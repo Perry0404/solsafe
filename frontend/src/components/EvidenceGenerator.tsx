@@ -618,8 +618,8 @@ const EvidenceGenerator: React.FC = () => {
       setGeneratedEvidence(updatedEvidence);
 
       // Convert Merkle root and evidence hash to arrays for smart contract
-      const merkleRootArray = Array.from(merkleRoot);
-      const evidenceHashArray = Array.from(evidenceHash);
+      // const merkleRootArray = Array.from(merkleRoot);
+      // const evidenceHashArray = Array.from(evidenceHash);
 
       setProgress('Calling smart contract submit_generated_evidence...');
       
