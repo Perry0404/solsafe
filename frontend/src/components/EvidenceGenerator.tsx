@@ -79,9 +79,7 @@ const EvidenceGenerator: React.FC = () => {
   const [progress, setProgress] = useState('');
   
   // Blockchain tracing states
-  const [selectedBlockchain, setSelectedBlockchain] = useState<'bitcoin' | 'litecoin' | 'solana' | 'ethereum'>('solana');
   const [blockchainStats, setBlockchainStats] = useState<any>(null);
-  const [realTimeData, setRealTimeData] = useState(false);
 
   // Initialize IPFS client
   const ipfs = create({ 
@@ -298,60 +296,6 @@ const EvidenceGenerator: React.FC = () => {
       const isLitecoin = scamAddress.startsWith('L') || scamAddress.startsWith('M') || scamAddress.startsWith('ltc1');
 
       console.log('Blockchain detected:', { isEVM, isSolana, isBitcoin, isLitecoin });
-
-      // If real-time data is enabled, fetch from API
-      if (realTimeData && (isBitcoin || isLitecoin)) {
-        const blockchain = isBitcoin ? 'bitcoin' : 'litecoin';
-        const realData = await fetchRealBlockchainData(blockchain, scamAddress);
-        
-        const evidence: GeneratedEvidence = {
-          scamAddress,
-          evidenceType,
-          transactionSignatures: realData.addressInfo.transactions.map(tx => tx.hash),
-          tokenBalances: [{ 
-            mint: blockchain.toUpperCase(), 
-            balance: realData.addressInfo.balance, 
-            decimals: 8 
-          }],
-          liquidityStatus: `Balance: ${realData.addressInfo.balance} ${blockchain === 'bitcoin' ? 'BTC' : 'LTC'}`,
-          fundFlowAnalysis: realData.addressInfo.transactions.slice(0, 10).map(tx => ({
-            from: tx.from,
-            to: tx.to,
-            amount: tx.value,
-            timestamp: tx.timestamp / 1000,
-            signature: tx.hash,
-            depth: 1
-          })),
-          victimTransactions: realData.addressInfo.transactions,
-          contractAnalysis: {
-            chain: blockchain === 'bitcoin' ? 'Bitcoin' : 'Litecoin',
-            totalReceived: realData.addressInfo.totalReceived,
-            totalSent: realData.addressInfo.totalSent,
-            txCount: realData.addressInfo.txCount
-          },
-          timestamp: Date.now(),
-          graphData: {
-            nodes: realData.graphData.nodes.map(n => ({
-              id: n.id,
-              label: n.label,
-              type: n.type as 'address' | 'transaction',
-              value: n.value,
-              group: n.group
-            })),
-            edges: realData.graphData.edges.map(e => ({
-              source: e.from,
-              target: e.to,
-              amount: e.value,
-              timestamp: Date.now() / 1000
-            }))
-          }
-        };
-        
-        setGeneratedEvidence(evidence);
-        setProgress(`✅ Real ${blockchain.toUpperCase()} data fetched successfully!`);
-        setLoading(false);
-        return;
-      }
 
       if (!isEVM && !isSolana && !isBitcoin && !isLitecoin) {
         alert('Invalid address format. Please enter a valid Bitcoin, Litecoin, Solana, or EVM address.');
