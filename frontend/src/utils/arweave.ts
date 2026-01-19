@@ -141,4 +141,3 @@ const arweaveUtils = {
 
 export default arweaveUtils;
 
-export default arweaveUtils;
