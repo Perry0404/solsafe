@@ -1,4 +1,4 @@
-﻿import Arweave from 'arweave';
+import Arweave from 'arweave';
 import { sha3_256 } from 'js-sha3';
 
 const arweave = Arweave.init({
@@ -130,11 +130,13 @@ export async function getStorageCostEstimate(evidenceSize) {
   };
 }
 
-export default {
+const arweaveUtils = {
   uploadToArweave,
   uploadViaBundlr,
   buildMerkleTree,
   verifyMerkleProof,
   hashEvidence,
   getStorageCostEstimate
-};
+};`n`nexport default arweaveUtils;
+
+export default arweaveUtils;

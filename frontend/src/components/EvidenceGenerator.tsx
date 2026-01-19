@@ -15,7 +15,7 @@ import {
   uploadViaBundlr,
   buildMerkleTree,
   hashEvidence,
-  getStorageCostEstimate
+  // getStorageCostEstimate
 } from '../utils/arweave';
 import './EvidenceGenerator.css';
 import './QuantumProtection.css';

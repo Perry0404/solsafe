@@ -104,7 +104,7 @@ export function useCases() {
       console.error('? Error creating program:', err);
       return null;
     }
-  }, [connection, anchorWallet]);
+  }, [connection, anchorWallet, wallet?.connected, wallet?.publicKey]);
 
   // Fetch all cases from blockchain - wrapped in useCallback to prevent infinite loops
   const fetchCases = useCallback(async () => {

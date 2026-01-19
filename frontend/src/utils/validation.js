@@ -268,7 +268,7 @@ export const SecureStorage = {
   },
 };
 
-export default {
+const validationUtils = {
   validateCaseId,
   validateSolanaAddress,
   validateEvidence,
@@ -278,3 +278,5 @@ export default {
   validateZkProofHash,
   SecureStorage,
 };
+
+export default validationUtils;

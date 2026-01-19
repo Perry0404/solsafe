@@ -1,10 +1,8 @@
-﻿
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useCases, formatCaseStatus, formatCaseState } from './hooks/useCases';
-import { sanitizeInput } from './utils/validation';
 import EvidenceGenerator from './components/EvidenceGenerator';
 
 export default function Dashboard() {

@@ -17,6 +17,7 @@ const TransactionGraph: React.FC<TransactionGraphProps> = ({
   height = 900 
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedNode, setSelectedNode] = useState<TransactionNode | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
