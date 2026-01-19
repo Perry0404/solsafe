@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, ParsedTransactionWithMeta } from '@solana/web3.js';
 import { create } from 'ipfs-http-client';
@@ -89,6 +89,16 @@ const EvidenceGenerator: React.FC = () => {
   });
 
   const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:4000';
+
+  // Debug: Monitor generatedEvidence changes
+  useEffect(() => {
+    console.log('🔄 generatedEvidence state changed:', generatedEvidence);
+    if (generatedEvidence) {
+      console.log('✅ Evidence is set, should display now');
+    } else {
+      console.log('❌ Evidence is null, not displaying');
+    }
+  }, [generatedEvidence]);
 
   // Helper function to get correct explorer link based on address type
   const getExplorerLink = (txHash: string, addressType: 'evm' | 'solana' = 'solana') => {
@@ -229,8 +239,10 @@ const EvidenceGenerator: React.FC = () => {
       }));
 
       console.log('✅ EVM Evidence generated:', evidence);
-      console.log('📊 Graph nodes:', evidence.graphData.nodes);
-      console.log('📊 Graph edges:', evidence.graphData.edges);
+      if (evidence.graphData) {
+        console.log('📊 Graph nodes:', evidence.graphData.nodes);
+        console.log('📊 Graph edges:', evidence.graphData.edges);
+      }
       setGeneratedEvidence(evidence);
       setProgress('✅ Multi-chain EVM analysis complete with ZK tracing!');
       setLoading(false);
