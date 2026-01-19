@@ -280,3 +280,4 @@ const validationUtils = {
 };
 
 export default validationUtils;
+export default validationUtils;

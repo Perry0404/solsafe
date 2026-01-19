@@ -137,6 +137,8 @@ const arweaveUtils = {
   verifyMerkleProof,
   hashEvidence,
   getStorageCostEstimate
-};`n`nexport default arweaveUtils;
+};
+
+export default arweaveUtils;
 
 export default arweaveUtils;
