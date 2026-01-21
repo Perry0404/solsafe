@@ -249,6 +249,7 @@ const EvidenceGenerator: React.FC = () => {
       
     } catch (error: any) {
       console.error('❌ EVM analysis failed:', error);
+      alert(`Analysis failed: ${error.message}\n\nCheck console for details.`);
       setProgress(`❌ Error: ${error.message}`);
       setLoading(false);
     }
@@ -322,6 +323,16 @@ const EvidenceGenerator: React.FC = () => {
         console.log('🔗 Analyzing EVM address...');
         setProgress('🔗 Analyzing EVM address (Ethereum/BSC/Polygon)...');
         await analyzeEVMAddress(scamAddress);
+        return;
+      }
+
+      if (isBitcoin || isLitecoin) {
+        // Bitcoin/Litecoin not yet supported
+        const blockchainName = isBitcoin ? 'Bitcoin' : 'Litecoin';
+        console.log(`₿ ${blockchainName} address detected...`);
+        setProgress(`₿ ${blockchainName} analysis coming soon...`);
+        alert(`${blockchainName} analysis is not yet implemented. Please try an Ethereum, Solana, BSC, or Polygon address for now.`);
+        setLoading(false);
         return;
       }
 
