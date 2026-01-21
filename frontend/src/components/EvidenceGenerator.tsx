@@ -255,7 +255,8 @@ const EvidenceGenerator: React.FC = () => {
   };
 
   // Fetch real blockchain data from our API
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars`n  const fetchRealBlockchainData = async (blockchain: string, address: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const fetchRealBlockchainData = async (blockchain: string, address: string) => {
     try {
       setProgress(`🌐 Fetching real ${blockchain.toUpperCase()} blockchain data...`);
       const response = await fetch(`${API_URL}/api/trace/${blockchain}/${address}`);
@@ -276,7 +277,8 @@ const EvidenceGenerator: React.FC = () => {
   };
 
   // Fetch blockchain stats
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars`n  const fetchBlockchainStats = async (blockchain: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const fetchBlockchainStats = async (blockchain: string) => {
     try {
       const response = await fetch(`${API_URL}/api/stats/${blockchain}`);
       const data = await response.json();
