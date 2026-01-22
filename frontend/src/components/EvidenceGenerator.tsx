@@ -110,82 +110,26 @@ const EvidenceGenerator: React.FC = () => {
 
   const analyzeEVMAddress = async (address: string) => {
     try {
-      setProgress('🔗 Fetching REAL blockchain data from Ethereum...');
+      setProgress('🔗 Fetching REAL blockchain data from backend...');
       
-      // Use Etherscan API directly (no API key needed for basic queries)
-      const baseUrl = 'https://api.etherscan.io/api';
+      // Use backend API
+      const apiUrl = process.env.REACT_APP_BACKEND_URL || 'https://solsafe-backend.vercel.app';
       
-      // Fetch transaction list
-      setProgress('📜 Fetching transaction history from Etherscan...');
-      const txResponse = await fetch(
-        `${baseUrl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=50&sort=desc`
-      );
-      const txData = await txResponse.json();
+      setProgress('📜 Fetching transaction history from backend...');
+      const response = await fetch(`${apiUrl}/api/trace/evm/ethereum/${address}?limit=50`);
+      const data = await response.json();
       
-      if (txData.status !== '1') {
-        throw new Error(txData.message || 'Failed to fetch transaction data from Etherscan');
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to fetch EVM data from backend');
       }
       
-      // Fetch ETH balance
-      setProgress('💰 Fetching balance...');
-      const balanceResponse = await fetch(
-        `${baseUrl}?module=account&action=balance&address=${address}&tag=latest`
-      );
-      const balanceData = await balanceResponse.json();
+      const { addressInfo, graph, intelligence } = data;
+      const transactions = addressInfo.transactions || [];
+      const balance = addressInfo.balance;
+      const totalSent = addressInfo.totalSent;
+      const totalReceived = addressInfo.totalReceived;
       
-      const transactions = txData.result || [];
-      const balance = balanceData.result ? parseFloat(balanceData.result) / 1e18 : 0;
-      
-      // Calculate total sent/received
-      let totalSent = 0;
-      let totalReceived = 0;
-      
-      transactions.forEach((tx: any) => {
-        const value = parseFloat(tx.value) / 1e18;
-        if (tx.from.toLowerCase() === address.toLowerCase()) {
-          totalSent += value;
-        }
-        if (tx.to && tx.to.toLowerCase() === address.toLowerCase()) {
-          totalReceived += value;
-        }
-      });
-      
-      setProgress('🔍 Analyzing transaction patterns...');
-      
-      // Build graph data
-      const uniqueAddresses = new Set<string>();
-      transactions.forEach((tx: any) => {
-        uniqueAddresses.add(tx.from);
-        if (tx.to) uniqueAddresses.add(tx.to);
-      });
-      
-      const graph = {
-        nodes: Array.from(uniqueAddresses).slice(0, 50).map(addr => ({
-          address: addr,
-          riskScore: addr.toLowerCase() === address.toLowerCase() ? 75 : Math.floor(Math.random() * 50) + 25,
-          label: addr.toLowerCase() === address.toLowerCase() ? 'Target' : 'Connected'
-        })),
-        edges: transactions.slice(0, 100).map((tx: any) => ({
-          from: tx.from,
-          to: tx.to || '0x0000000000000000000000000000000000000000',
-          value: parseFloat(tx.value) / 1e18,
-          timestamp: parseInt(tx.timeStamp)
-        }))
-      };
-      
-      // Intelligence analysis
-      const rugPullRisk = totalSent > totalReceived * 2 ? 85 : totalSent > totalReceived ? 60 : 30;
-      const intelligence = {
-        mixerUsage: false,
-        rugPullRisk,
-        washTradingDetected: false,
-        mevBotActivity: transactions.length > 100,
-        whaleActivity: balance > 100,
-        exchangeDeposits: [],
-        suspiciousPatterns: rugPullRisk > 70 ? ['High outflow ratio', 'Possible fund extraction'] : [],
-        riskFactors: [],
-        entities: []
-      };
+      setProgress('🔍 Building evidence from backend data...');
       
       const evidence: GeneratedEvidence = {
         scamAddress: address,
@@ -201,15 +145,15 @@ const EvidenceGenerator: React.FC = () => {
         fundFlowAnalysis: transactions.slice(0, 10).map((tx: any, idx: number) => ({
           from: tx.from,
           to: tx.to || '0x0000000000000000000000000000000000000000',
-          amount: parseFloat(tx.value) / 1e18,
-          timestamp: parseInt(tx.timeStamp),
+          amount: tx.value,
+          timestamp: tx.timestamp / 1000,
           signature: tx.hash,
           depth: idx < 3 ? 0 : idx < 7 ? 1 : 2
         })),
         victimTransactions: transactions.slice(0, 15).map((tx: any) => ({
           signature: tx.hash,
-          blockTime: parseInt(tx.timeStamp),
-          fee: (parseFloat(tx.gasUsed) * parseFloat(tx.gasPrice)) / 1e18,
+          blockTime: tx.timestamp / 1000,
+          fee: tx.fee,
           accounts: 2
         })),
         contractAnalysis: { 
@@ -217,46 +161,15 @@ const EvidenceGenerator: React.FC = () => {
           balance,
           totalReceived,
           totalSent,
-          txCount: transactions.length
+          txCount: addressInfo.txCount
         },
         timestamp: Date.now(),
-        mlRiskScore: Math.min(100, Math.floor(rugPullRisk)),
-        qualityScore: Math.min(100, Math.floor((transactions.length / 50) * 80) + 20),
+        mlRiskScore: Math.min(100, intelligence.rugPullRisk),
+        qualityScore: Math.min(100, Math.floor((addressInfo.txCount / 50) * 80) + 20),
         zkTraces: []
       };
 
       evidence.graphData = graph;
-      
-      // Check for ZK protocol interactions
-      setProgress('🔓 Scanning for ZK protocol interactions...');
-      const zkProtocols = {
-        tornadoCash: '0x47CE0C6eD5B0Ce3d3A51fdb1C52DC66a7c3c2936',
-        aztec: '0x737901bea3eeb88459df9ef1BE8fF3Ae1B42A2ba',
-        railgun: '0xFA7093CDD9EE6932B4eb2c9e1cde7CE00B1FA4b9',
-        zkSync: '0x32400084C286CF3E17e7B677ea9583e60a000324'
-      };
-
-      const zkInteractions = transactions.filter((tx: any) => 
-        Object.values(zkProtocols).some(protocol => 
-          tx.to?.toLowerCase() === protocol.toLowerCase()
-        )
-      );
-      
-      if (zkInteractions.length > 0) {
-        evidence.intelligence!.mixerUsage = true;
-        evidence.intelligence!.suspiciousPatterns.push('Privacy mixer usage detected');
-        evidence.mlRiskScore = Math.min(100, evidence.mlRiskScore! + 20);
-      }
-      
-      // Build fund flow analysis
-      evidence.fundFlowAnalysis = transactions.slice(0, 10).map((tx: any, idx: number) => ({
-        from: tx.from,
-        to: tx.to || '0x0000000000000000000000000000000000000000',
-        amount: parseFloat(tx.value) / 1e18,
-        timestamp: parseInt(tx.timeStamp),
-        signature: tx.hash,
-        depth: idx < 3 ? 0 : idx < 7 ? 1 : 2
-      }));
 
       console.log('✅ EVM Evidence generated:', evidence);
       if (evidence.graphData) {
@@ -264,7 +177,7 @@ const EvidenceGenerator: React.FC = () => {
         console.log('📊 Graph edges:', evidence.graphData.edges.length);
       }
       setGeneratedEvidence(evidence);
-      setProgress('✅ Multi-chain EVM analysis complete with ZK tracing!');
+      setProgress('✅ Multi-chain EVM analysis complete!');
       setLoading(false);
       
     } catch (error: any) {
