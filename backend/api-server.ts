@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import dotenv from 'dotenv';
+import { traceEVMAddress, traceSolanaAddress, traceBitcoinAddress, getBlockchainStats } from './blockchain-tracer.js';
 
 dotenv.config();
 
@@ -51,6 +52,104 @@ const upload = multer({
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'SolSafe API server is running' });
 });
+
+// ============================================
+// BLOCKCHAIN TRACING ENDPOINTS
+// ============================================
+
+// Trace EVM chain address (Ethereum, BSC, Polygon, Arbitrum, Optimism, Avalanche, Fantom, Base)
+app.get('/api/trace/evm/:chain/:address', async (req: Request, res: Response) => {
+  try {
+    const { chain, address } = req.params;
+    const limit = parseInt(req.query.limit as string) || 50;
+    
+    console.log(`🔍 Tracing ${chain} address: ${address}`);
+    const result = await traceEVMAddress(chain, address, limit);
+    
+    res.json({
+      success: true,
+      chain,
+      ...result
+    });
+  } catch (error: any) {
+    console.error(`❌ EVM trace error (${req.params.chain}):`, error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Trace Solana address
+app.get('/api/trace/solana/:address', async (req: Request, res: Response) => {
+  try {
+    const { address } = req.params;
+    const limit = parseInt(req.query.limit as string) || 100;
+    
+    console.log(`🔍 Tracing Solana address: ${address}`);
+    const result = await traceSolanaAddress(address, limit);
+    
+    res.json({
+      success: true,
+      chain: 'solana',
+      ...result
+    });
+  } catch (error: any) {
+    console.error('❌ Solana trace error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Trace Bitcoin address
+app.get('/api/trace/bitcoin/:address', async (req: Request, res: Response) => {
+  try {
+    const { address } = req.params;
+    
+    console.log(`🔍 Tracing Bitcoin address: ${address}`);
+    const result = await traceBitcoinAddress(address);
+    
+    res.json({
+      success: true,
+      chain: 'bitcoin',
+      ...result
+    });
+  } catch (error: any) {
+    console.error('❌ Bitcoin trace error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get blockchain stats
+app.get('/api/stats/:chain', async (req: Request, res: Response) => {
+  try {
+    const { chain } = req.params;
+    
+    console.log(`📊 Fetching ${chain} stats`);
+    const stats = await getBlockchainStats(chain);
+    
+    res.json({
+      success: true,
+      chain,
+      stats
+    });
+  } catch (error: any) {
+    console.error(`❌ Stats error (${req.params.chain}):`, error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// IPFS UPLOAD ENDPOINTS
+// ============================================
 
 // Upload file from base64
 app.post('/api/upload-base64', async (req: Request, res: Response) => {
