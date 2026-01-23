@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import dotenv from 'dotenv';
-import { traceEVMAddress, traceSolanaAddress, traceBitcoinAddress, getBlockchainStats } from './blockchain-tracer.js';
+import { traceEVMAddress, traceSolanaAddress, traceBitcoinAddress, getBlockchainStats } from './blockchain-tracer-functions.js';
 
 dotenv.config();
 
