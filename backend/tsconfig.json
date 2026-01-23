@@ -15,6 +15,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["api-server.ts"],
+  "include": ["api-server.ts", "blockchain-tracer-functions.ts"],
   "exclude": ["node_modules", "dist", "server.ts"]
 }
